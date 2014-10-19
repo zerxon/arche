@@ -5,6 +5,8 @@
  * @date: 14-10-18
  */
 
+session_start();
+
 define('LIBRARY_PATH', 'Library/');
 defined('APP_PATH') or define('APP_PATH', 'APP/');
 defined('CONTROLLER_PATH') or define('CONTROLLER_PATH', APP_PATH.'Controller/');

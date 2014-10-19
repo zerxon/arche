@@ -10,7 +10,8 @@ import('Library.Core.Filter.Filter');
 class AdminSignInFilter extends Filter {
 
     public function doFilter() {
-        session_start();
+        return true;
+
         $user = $_SESSION['user'];
 
         if(is_object($user) && intval($user->isAdmin()) === 1) {
