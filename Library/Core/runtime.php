@@ -28,7 +28,7 @@ $phpName = end(explode('/', $scriptName));
 $baseUrl = $protocol.$_SERVER['HTTP_HOST'].str_replace($phpName, '', $scriptName);
 
 define('BASE_URL', $baseUrl);
-define('PUBLIC_URL', BASE_URL.'Public');
+define('PUBLIC_URL', BASE_URL.'Public/');
 
 include LIBRARY_PATH.'Core/function.php';
 C(tp_include(CONFIG_PATH.'baseConfig.php'));
