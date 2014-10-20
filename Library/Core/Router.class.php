@@ -25,38 +25,53 @@ class Router
             $pathInfo = '/';
 
         if (is_array($routerConfig)) {
-            foreach ($routerConfig as $key => $value) {
-                //判断是否在起始位置匹配,防止非法规则
-                if (strpos($pathInfo, $key) === 0) {
-                    //如果为首页配置项
-                    if($key === '/' && !($pathInfo === '/')) {
+            foreach ($routerConfig as $moduleKey => $value) {
+
+                $noRegModuleKey = str_replace('\\', '', $moduleKey);
+                $pregModuleKey = str_replace('/', '\/', $moduleKey);
+
+                //如果为首页配置项
+                if($moduleKey === '/') {
+                    if($pathInfo === '/') {
+                        $this->_module = $value;
+                        $status = true;
+                        break;
+                    }
+                    else {
                         continue;
                     }
-
-                    //如果module的规则值为数组，则继续进一步解析
+                }
+                //匹配module规则，为正则表达式
+                else if(preg_match("/^$pregModuleKey/", $pathInfo)) {
+                    //如果module的规则值为数组，则继续进一步解析action
                     if (is_array($value)) {
                         $this->_module = $value['Controller'];
-                        $pattern = $value['Pattern'];
+                        $actionPattern = $value['Pattern'];
 
-                        //判断是否为默认action
-                        if($pathInfo === $key || $pathInfo === $key.'/') {
+                        //判断规则是否匹配默认action
+                        if($pathInfo === $noRegModuleKey || $pathInfo === $noRegModuleKey.'/') {
                             $status = true;
 
-                            if(isset($pattern['/'])) {
-                                $this->_action = $pattern['/'];
+                            if(isset($actionPattern['/'])) {
+                                $this->_action = $actionPattern['/'];
                             }
 
                             break;
                         }
 
-                        $actionPathInfo = str_replace($key, '', $pathInfo);
+                        $actionPathInfo = preg_replace("/^$pregModuleKey/", '', $pathInfo);
 
                         //循环匹配action规则
-                        foreach($pattern as $k => $v) {
-
+                        foreach($actionPattern as $actionKey => $v) {
                             $GetArray = array(); //存放get参数的临时数组
-                            $k = str_replace('/', '\/', $k);
-                            if(preg_match("/^$k/", $actionPathInfo, $matches)) {
+
+                            //默认action之前已作处理，在此处跳过
+                            if($actionKey === '/') {
+                                continue;
+                            }
+
+                            $pregActionKey = str_replace('/', '\/', $actionKey);
+                            if(preg_match("/^$pregActionKey/", $actionPathInfo, $matches)) {
 
                                 $matchString = array_shift($matches);
 
@@ -78,8 +93,7 @@ class Router
 
                                 }
 
-
-                                if($actionPathInfo === $matchString) {
+                                if($actionPathInfo == $matchString) {
                                     $status = true;
 
                                     $this->_action = $v;
@@ -102,19 +116,17 @@ class Router
                         $this->_module = $value;
                         $status = true;
                     }
+                }
 
-                    //检查是否有action
-                    $actionPathInfo = str_replace($key, '', $pathInfo);
-                    if($this->_action == 'index' && !empty($actionPathInfo)) {
-                        if(strpos($actionPathInfo, '/') < 1) {
-                            $status = true;
-                            $this->_action = substr($actionPathInfo ,1);
-                        }
-                        else {
-                            $status = false;
-                        }
+                //检查是否有action
+                $actionPathInfo = str_replace($moduleKey, '', $pathInfo);
+                if($this->_action == 'index' && !empty($actionPathInfo)) {
+                    if(strpos($actionPathInfo, '/') < 1) {
+                        $this->_action = substr($actionPathInfo ,1);
                     }
-
+                    else {
+                        $status = false;
+                    }
                 }
             }
         } else {
@@ -243,24 +255,8 @@ class Router
         $baseControllerClass = $this->_loadBaseController();
         import($baseControllerClass);
 
-        //$pathInfo = substr($_SERVER['PATH_INFO'], 1, strlen($_SERVER['PATH_INFO']));
         $pathInfo = $_SERVER['PATH_INFO'];
         $this->_ruleMatch($pathInfo);
-
-        /*
-        $paths = explode('/', $pathInfo);
-        if (count($paths) >= 3) {
-            $module = $paths[0];
-            $controllerClassPrefix = ucfirst($paths[1]);
-            $action = $paths[2];
-
-            for ($i = 3; $i < count($paths); $i++) {
-                $_GET[$paths[$i]] = isset($paths[++$i]) ? $paths[$i] : null;
-            }
-        } else {
-            error("Invalid URI, URI require at least 3 parameters");
-        }
-        */
 
         $controllerClassPrefix = end(explode('/', $this->_module));
         $controllerClass = $controllerClassPrefix . $this->_controllerClassSuffix;

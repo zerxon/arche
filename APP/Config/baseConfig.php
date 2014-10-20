@@ -20,6 +20,5 @@ return array(
     ),
     'api_format'=>'json', /* string | json | xml */
     'tpl'=>'.html',
-    'router_enable'=>false,
     'filter_enable'=>true
 );
