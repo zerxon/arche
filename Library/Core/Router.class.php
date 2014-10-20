@@ -143,45 +143,6 @@ class Router
         */
     }
 
-    private function _ruleMatch_bak($pathInfo)
-    {
-        $uri = null;
-        $rulesConfig = tp_include(CONFIG_PATH . 'routerRuleConfig.php');
-
-        if ($pathInfo == null) {
-            $uri = $rulesConfig['/'];
-        } else {
-            foreach ($rulesConfig as $rule => $uri) {
-
-                /*
-                $optionalRules = array();
-                preg_match_all('/(?<=#)[^#]+(?=#)/', $rule, $ruleMatches);
-                if(count($ruleMatches) > 0 && count($ruleMatches[0]) > 0) {
-                    $optionalRules = $ruleMatches[0];
-                    foreach($optionalRules as $item) {
-                        $rule = str_replace($item, '', $rule);
-                    }
-                    $rule = str_replace('#', '', $rule);
-                }
-                */
-
-                $rule = str_replace('/', '\/', $rule);
-                $rule = "/$rule$/";
-                if (preg_match($rule, $pathInfo, $matches)) {
-                    $count = count($matches);
-                    if ($count > 1) {
-                        for ($i = 1; $i < $count; $i++) {
-                            $uri = str_replace('$' . $i, $matches[$i], $uri);
-                        }
-                    }
-                    break;
-                }
-            }
-        }
-
-        return $uri;
-    }
-
     //根据host选择不同的base controller
     private function _loadBaseController()
     {

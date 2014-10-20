@@ -1,11 +1,9 @@
 <?php
-/**
- * 
- * @author: wallace wallaceleung@163.com
- * @date: 14-10-19
- */
 
 /**
+ * @author: wallace wallaceleung@163.com
+ * @date: 14-10-19
+ *
  * 规则说明：
  *  模板
     array(
@@ -41,6 +39,7 @@
  *  5. Pattern数组只作为处理一些自定义action规则，控制器类自带的公有action方法可省略不写
  *  6. Pattern匹配参数的例子: '/(\d+)/(\w+)' => 'detail?id=$1&type=$2'
  */
+
 return array(
     '/' => 'index/Index',
     '/store' => 'test/Store',
