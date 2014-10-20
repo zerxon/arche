@@ -13,6 +13,16 @@ class HotelController extends Controller {
 
     public function detail() {
         echo 'hotel detail page';
+        echo '<pre>';
+        print_r($_GET);
+    }
+
+    public function test() {
+
+    }
+
+    public function act() {
+        echo 'act';
     }
 
 }

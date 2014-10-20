@@ -33,17 +33,27 @@ class Router
                         continue;
                     }
 
-                    $this->_module = $value;
-
                     //如果module的规则值为数组，则继续进一步解析
-                    if ($pathInfo !== $key && is_array($value)) {
+                    if (is_array($value)) {
                         $this->_module = $value['Controller'];
                         $pattern = $value['Pattern'];
+
+                        //判断是否为默认action
+                        if($pathInfo === $key || $pathInfo === $key.'/') {
+                            $status = true;
+
+                            if(isset($pattern['/'])) {
+                                $this->_action = $pattern['/'];
+                            }
+
+                            break;
+                        }
 
                         $actionPathInfo = str_replace($key, '', $pathInfo);
 
                         //循环匹配action规则
                         foreach($pattern as $k => $v) {
+
                             $GetArray = array(); //存放get参数的临时数组
                             $k = str_replace('/', '\/', $k);
                             if(preg_match("/^$k/", $actionPathInfo, $matches)) {
@@ -68,10 +78,11 @@ class Router
 
                                 }
 
-                                $this->_action = $v;
 
                                 if($actionPathInfo === $matchString) {
                                     $status = true;
+
+                                    $this->_action = $v;
 
                                     //将get参数临时数组加入到$_GET
                                     if(!empty($GetArray)) {
@@ -88,6 +99,7 @@ class Router
                         }
                     }
                     else {
+                        $this->_module = $value;
                         $status = true;
                     }
 
@@ -95,6 +107,7 @@ class Router
                     $actionPathInfo = str_replace($key, '', $pathInfo);
                     if($this->_action == 'index' && !empty($actionPathInfo)) {
                         if(strpos($actionPathInfo, '/') < 1) {
+                            $status = true;
                             $this->_action = substr($actionPathInfo ,1);
                         }
                         else {
@@ -111,11 +124,11 @@ class Router
         if(!$status)
             error('Invalid pathInfo: '.$pathInfo.', It can not match any available router pattern');
 
-        $this->_module .= $this->_controllerClassSuffix;
-
+        /*
         debug($this->_module, false);
         debug($this->_action, false);
         debug($_GET);
+        */
     }
 
     private function _ruleMatch_bak($pathInfo)
@@ -232,7 +245,9 @@ class Router
 
         //$pathInfo = substr($_SERVER['PATH_INFO'], 1, strlen($_SERVER['PATH_INFO']));
         $pathInfo = $_SERVER['PATH_INFO'];
-        $pathInfo = $this->_ruleMatch($pathInfo);
+        $this->_ruleMatch($pathInfo);
+
+        /*
         $paths = explode('/', $pathInfo);
         if (count($paths) >= 3) {
             $module = $paths[0];
@@ -245,14 +260,17 @@ class Router
         } else {
             error("Invalid URI, URI require at least 3 parameters");
         }
+        */
 
+        $controllerClassPrefix = end(explode('/', $this->_module));
         $controllerClass = $controllerClassPrefix . $this->_controllerClassSuffix;
-        $filePath = CONTROLLER_PATH . $module . '/' . $controllerClass . '.class.php';
+
+        $filePath = CONTROLLER_PATH.$this->_module.$this->_controllerClassSuffix.'.class.php';
 
         if (file_exists($filePath)) {
             require $filePath;
 
-            $this->_runController($module, $controllerClass, $action);
+            $this->_runController($this->_module, $controllerClass, $this->_action);
         } else {
             error($filePath . ' file does not exist');
         }

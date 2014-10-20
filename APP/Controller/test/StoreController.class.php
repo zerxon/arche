@@ -61,6 +61,7 @@ class StoreController extends Controller {
     }
 
     public function selectOne() {
+
         $storeId = $_GET['store_id'];
         $store = $this->_orm->select('name','contact','address')
             ->fetch('blanks')
