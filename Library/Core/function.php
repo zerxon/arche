@@ -63,11 +63,15 @@ function import($class,$ext = '.class.php') {
 
 function tp_include($path = null) {
     static $_require = array();
+
+    if(!is_file($path))
+        error($path.' file does not exist');
+
     if(!isset($_require[$path])) {
         $_require[$path] = '';
         return require $path;
     } else {
-        return false;
+        return true;
     }
 }
 

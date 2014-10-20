@@ -6,21 +6,127 @@
  * Time: 下午10:16
  */
 
-class Router {
+class Router
+{
 
     private static $_instance;
 
+    private $_module = 'Index';
+    private $_action = 'index';
+
     private $_controllerClassSuffix;
 
-    private function _ruleMatch($pathInfo) {
-        $uri = null;
-        $rulesConfig = tp_include(CONFIG_PATH.'routerRuleConfig.php');
+    private function _ruleMatch($pathInfo)
+    {
+        $status = false;
+        $routerConfig = tp_include(CONFIG_PATH . 'routerConfig.php');
 
-        if($pathInfo == null) {
-            $uri = $rulesConfig['/'];
+        if($pathInfo == '')
+            $pathInfo = '/';
+
+        if (is_array($routerConfig)) {
+            foreach ($routerConfig as $key => $value) {
+                //判断是否在起始位置匹配,防止非法规则
+                if (strpos($pathInfo, $key) === 0) {
+                    //如果为首页配置项
+                    if($key === '/' && !($pathInfo === '/')) {
+                        continue;
+                    }
+
+                    $this->_module = $value;
+
+                    //如果module的规则值为数组，则继续进一步解析
+                    if ($pathInfo !== $key && is_array($value)) {
+                        $this->_module = $value['Controller'];
+                        $pattern = $value['Pattern'];
+
+                        $actionPathInfo = str_replace($key, '', $pathInfo);
+
+                        //循环匹配action规则
+                        foreach($pattern as $k => $v) {
+                            $GetArray = array(); //存放get参数的临时数组
+                            $k = str_replace('/', '\/', $k);
+                            if(preg_match("/^$k/", $actionPathInfo, $matches)) {
+
+                                $matchString = array_shift($matches);
+
+                                //匹配action规则的参数值
+                                if(strpos($v, '?') > 0 && preg_match_all('/[\?|&]([^=]+=[^&]+)/i', $v, $paramsMath)) {
+                                    $s = implode('', $paramsMath[0]);
+                                    $v = str_replace($s, '' ,$v);
+
+                                    foreach($paramsMath[1] as $index => $item) {
+                                        //将参数索引替换成具体的参数值
+                                        $item = str_replace('$'.($index+1), $matches[$index], $item);
+
+                                        //划分参数键值，将其加入到$_GET里面
+                                        $paramArr = explode('=', $item);
+                                        $paramKey = $paramArr[0];
+                                        $paramValue = $paramArr[1];
+                                        $GetArray[$paramKey] = $paramValue;
+                                    }
+
+                                }
+
+                                $this->_action = $v;
+
+                                if($actionPathInfo === $matchString) {
+                                    $status = true;
+
+                                    //将get参数临时数组加入到$_GET
+                                    if(!empty($GetArray)) {
+                                        foreach($GetArray as $getKey => $getValue) {
+                                            $_GET[$getKey] = $getValue;
+                                        }
+                                    }
+
+                                    break;
+                                }
+
+                            }
+
+                        }
+                    }
+                    else {
+                        $status = true;
+                    }
+
+                    //检查是否有action
+                    $actionPathInfo = str_replace($key, '', $pathInfo);
+                    if($this->_action == 'index' && !empty($actionPathInfo)) {
+                        if(strpos($actionPathInfo, '/') < 1) {
+                            $this->_action = substr($actionPathInfo ,1);
+                        }
+                        else {
+                            $status = false;
+                        }
+                    }
+
+                }
+            }
+        } else {
+            error('routerConfig is not array');
         }
-        else {
-            foreach($rulesConfig as $rule=>$uri) {
+
+        if(!$status)
+            error('Invalid pathInfo: '.$pathInfo.', It can not match any available router pattern');
+
+        $this->_module .= $this->_controllerClassSuffix;
+
+        debug($this->_module, false);
+        debug($this->_action, false);
+        debug($_GET);
+    }
+
+    private function _ruleMatch_bak($pathInfo)
+    {
+        $uri = null;
+        $rulesConfig = tp_include(CONFIG_PATH . 'routerRuleConfig.php');
+
+        if ($pathInfo == null) {
+            $uri = $rulesConfig['/'];
+        } else {
+            foreach ($rulesConfig as $rule => $uri) {
 
                 /*
                 $optionalRules = array();
@@ -36,11 +142,11 @@ class Router {
 
                 $rule = str_replace('/', '\/', $rule);
                 $rule = "/$rule$/";
-                if(preg_match($rule, $pathInfo, $matches)) {
+                if (preg_match($rule, $pathInfo, $matches)) {
                     $count = count($matches);
-                    if($count > 1) {
-                        for($i = 1; $i < $count; $i++) {
-                            $uri = str_replace('$'.$i, $matches[$i], $uri);
+                    if ($count > 1) {
+                        for ($i = 1; $i < $count; $i++) {
+                            $uri = str_replace('$' . $i, $matches[$i], $uri);
                         }
                     }
                     break;
@@ -52,15 +158,15 @@ class Router {
     }
 
     //根据host选择不同的base controller
-    private function _loadBaseController() {
+    private function _loadBaseController()
+    {
         $controllerConfig = C('controller');
-        if(is_array($controllerConfig)) {
+        if (is_array($controllerConfig)) {
             $baseControllerClass = $controllerConfig['base_class'];
             $this->_controllerClassSuffix = $controllerConfig['class_suffix'];
 
             return $baseControllerClass;
-        }
-        else {
+        } else {
             error('No controller');
         }
     }
@@ -72,45 +178,44 @@ class Router {
      * @param $module
      * @param $action
      */
-    public function _runController($module, $controllerClass, $action) {
+    public function _runController($module, $controllerClass, $action)
+    {
 
-        if(class_exists($controllerClass)) {
+        if (class_exists($controllerClass)) {
             $status = true;
 
             //过滤器
-            if(C('filter_enable')) {
+            if (C('filter_enable')) {
                 import('Library.Core.Filter.FilterHandler');
                 $filterController = FilterHandler::getInstance();
                 $status = $filterController->filter($controllerClass, $action);
             }
 
-            if($status) {
+            if ($status) {
                 $controllerInstance = new $controllerClass();
                 $controllerInstance->setModule($module);
                 $controllerInstance->setController($controllerClass);
 
-                if(method_exists($controllerInstance, $action)) {
+                if (method_exists($controllerInstance, $action)) {
                     $controllerInstance->setAction($action);
                     $controllerInstance->doActionStart();
                     $controllerInstance->$action();
                     $controllerInstance->doActionFinish();
+                } else {
+                    error($action . ' method undefined');
                 }
-                else {
-                    error($action.' method undefined');
-                }
-            }
-            else {
+            } else {
                 error('filter can not pass');
             }
-        }
-        else {
-            error($controllerClass.' class undefined');
+        } else {
+            error($controllerClass . ' class undefined');
         }
 
     }
 
-    public static function getInstance() {
-        if(self::$_instance == null) {
+    public static function getInstance()
+    {
+        if (self::$_instance == null) {
             self::$_instance = new self;
         }
 
@@ -120,39 +225,36 @@ class Router {
     /**
      * 路由分发器
      */
-    public function dispatch() {
+    public function dispatch()
+    {
         $baseControllerClass = $this->_loadBaseController();
         import($baseControllerClass);
 
-        $pathInfo = substr($_SERVER['PATH_INFO'], 1, strlen($_SERVER['PATH_INFO']));
-        if(C('router_enable') == true) {
-            $pathInfo = $this->_ruleMatch($pathInfo);
-        }
+        //$pathInfo = substr($_SERVER['PATH_INFO'], 1, strlen($_SERVER['PATH_INFO']));
+        $pathInfo = $_SERVER['PATH_INFO'];
+        $pathInfo = $this->_ruleMatch($pathInfo);
         $paths = explode('/', $pathInfo);
-        if(count($paths) >= 3)
-        {
+        if (count($paths) >= 3) {
             $module = $paths[0];
             $controllerClassPrefix = ucfirst($paths[1]);
             $action = $paths[2];
 
-            for($i = 3; $i < count($paths); $i++) {
+            for ($i = 3; $i < count($paths); $i++) {
                 $_GET[$paths[$i]] = isset($paths[++$i]) ? $paths[$i] : null;
             }
-        }
-        else {
+        } else {
             error("Invalid URI, URI require at least 3 parameters");
         }
 
-        $controllerClass = $controllerClassPrefix.$this->_controllerClassSuffix;
-        $filePath = CONTROLLER_PATH.$module.'/'.$controllerClass.'.class.php';
+        $controllerClass = $controllerClassPrefix . $this->_controllerClassSuffix;
+        $filePath = CONTROLLER_PATH . $module . '/' . $controllerClass . '.class.php';
 
-        if(file_exists($filePath)) {
+        if (file_exists($filePath)) {
             require $filePath;
 
             $this->_runController($module, $controllerClass, $action);
-        }
-        else {
-            error($filePath.' file does not exist');
+        } else {
+            error($filePath . ' file does not exist');
         }
 
     }
