@@ -42,7 +42,7 @@
 
 return array(
     '/' => 'index/Index',
-    '/store' => 'test/Store',
+    '/test' =>  'test/Test',
     '/hotel' => array(
         'Controller' => 'hotel/Hotel',
         'Pattern' => array(

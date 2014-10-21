@@ -17,8 +17,8 @@ class HotelController extends Controller {
         print_r($_GET);
     }
 
-    public function test() {
-
+    public function one() {
+        echo 'one';
     }
 
     public function act() {

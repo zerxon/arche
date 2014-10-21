@@ -117,17 +117,30 @@ class Router
                         $status = true;
                     }
                 }
+                else {
+                    continue;
+                }
 
                 //检查是否有action
-                $actionPathInfo = str_replace($moduleKey, '', $pathInfo);
-                if($this->_action == 'index' && !empty($actionPathInfo)) {
-                    if(strpos($actionPathInfo, '/') < 1) {
-                        $this->_action = substr($actionPathInfo ,1);
+                if($this->_action == 'index') {
+                    $actionPathInfo = preg_replace("/^$pregModuleKey/", '', $pathInfo);
+
+                    if(strlen(trim($actionPathInfo)) > 0) {
+
+                        if(strpos($actionPathInfo, '/') < 1) {
+                            $status = true;
+                            $this->_action = substr($actionPathInfo ,1);
+                            break;
+                        }
+                        else {
+                            $status = false;
+                        }
                     }
                     else {
-                        $status = false;
+                        break;
                     }
                 }
+
             }
         } else {
             error('routerConfig is not array');
