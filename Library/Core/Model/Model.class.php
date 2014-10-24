@@ -113,6 +113,11 @@ abstract class Model {
         }
     }
 
+    public function getTableName() {
+        $dbConfig = C('db');
+        return  $dbConfig['prefix'].$this->_tableName;
+    }
+
     /**
      * 将实体对象的字段属性值转换成数组
      * @return array

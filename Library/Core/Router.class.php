@@ -16,8 +16,8 @@ class Router
 
     private $_controllerClassSuffix;
 
-    private function _ruleMatch($pathInfo)
-    {
+    private function _ruleMatch($pathInfo) {
+
         $status = false;
         $routerConfig = tp_include(CONFIG_PATH . 'routerConfig.php');
 
@@ -157,8 +157,7 @@ class Router
     }
 
     //根据host选择不同的base controller
-    private function _loadBaseController()
-    {
+    private function _loadBaseController() {
         $controllerConfig = C('controller');
         if (is_array($controllerConfig)) {
             $baseControllerClass = $controllerConfig['base_class'];
@@ -177,8 +176,7 @@ class Router
      * @param $module
      * @param $action
      */
-    public function _runController($module, $controllerClass, $action)
-    {
+    public function _runController($module, $controllerClass, $action) {
 
         if (class_exists($controllerClass)) {
             $status = true;
@@ -193,7 +191,6 @@ class Router
             if ($status) {
                 $controllerInstance = new $controllerClass();
                 $controllerInstance->setModule($module);
-                $controllerInstance->setController($controllerClass);
 
                 if (method_exists($controllerInstance, $action)) {
                     $controllerInstance->setAction($action);
@@ -212,8 +209,7 @@ class Router
 
     }
 
-    public static function getInstance()
-    {
+    public static function getInstance() {
         if (self::$_instance == null) {
             self::$_instance = new self;
         }
@@ -224,8 +220,7 @@ class Router
     /**
      * 路由分发器
      */
-    public function dispatch()
-    {
+    public function dispatch() {
         $baseControllerClass = $this->_loadBaseController();
         import($baseControllerClass);
 

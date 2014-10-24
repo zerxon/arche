@@ -11,8 +11,8 @@ return array(
         'host'=>'localhost',
         'user'=>'root',
         'pwd'=>'toor',
-        'name'=>'takeout',
-        'prefix'=>''
+        'name'=>'pa',
+        'prefix'=>'pa_'
     ),
     'controller'=>array(
         'base_class'=>'Library.Core.Controller.Controller',

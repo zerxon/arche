@@ -21,11 +21,12 @@ class ORM {
     private $_page = array();
 
     public function __construct($className) {
+        $dbConfig = C('db');
+
         $this->sql = '';
         $this->_reflection = new ModelReflection($className);
         $this->_tableName = $this->_reflection->getTableName();
 
-        $dbConfig = C('db');
         $this->_driver = MysqlDriver::getInstance($dbConfig);
         //$this->_driver = new MysqlDriver($dbConfig); //需要修改
     }
@@ -34,6 +35,23 @@ class ORM {
         $value = slashes($value);
 
         $this->_sql .= "$sign'$value'";
+    }
+
+    private function _page($pageIndex, $pageSize) {
+        $status = false;
+        if(is_numeric($pageIndex) && is_numeric($pageSize) && $pageIndex > 0 && $pageSize > 0)
+            $status = true;
+
+        if($status) {
+            $this->_page = array(
+                'pageIndex'=>intval($pageIndex),
+                'pageSize'=>intval($pageSize)
+            );
+        }
+        else {
+            error("pageIndex or pageSize must greater than 0");
+        }
+
     }
 
     private function _queryString($tableFields, $reflection = null) {
@@ -73,7 +91,7 @@ class ORM {
         if(count($this->_page) > 0) {
             $offset = ($this->_page['pageIndex'] - 1) * $this->_page['pageSize'];
 
-            $this->_sql .= " limit $offset,".$this->_page['pageSize'];
+            $this->_sql .= " LIMIT $offset,".$this->_page['pageSize'];
         }
     }
 
@@ -328,15 +346,6 @@ class ORM {
         return $this;
     }
 
-    public function page($pageIndex, $pageSize) {
-        $this->_page = array(
-            'pageIndex'=>intval($pageIndex),
-            'pageSize'=>intval($pageSize)
-        );
-
-        return $this;
-    }
-
     public function execute() {
         $result = $this->_driver->query($this->_sql);
         //$this->_driver->affected_rows();
@@ -348,21 +357,26 @@ class ORM {
         return $status;
     }
 
-    public function queryOne() {
+    public function queryOne($isObj = false) {
         $this->_processSQLString();
         $record = $this->_driver->once_fetch_assoc($this->_sql);
         if($record) {
             $object = $this->_reflection->parse($record);
             $this->_modelMapping($object);
 
-            return $object;
+            if($isObj) {
+                return $object;
+            }
+            else {
+                return $object->toArray();
+            }
         }
         else {
             return null;
         }
     }
 
-    public function queryAll() {
+    public function queryAll($isObj = false) {
         $this->_processSQLString();
         $records = $this->_driver->fetch_all_assoc($this->_sql);
 
@@ -373,11 +387,37 @@ class ORM {
                 $this->_modelMapping($object);
             }
 
-            return $objects;
+            if($isObj) {
+                return $objects;
+            }
+            else {
+                return Model::entitiesToArray($objects);
+            }
         }
         else {
             return null;
         }
+    }
+
+    public function queryPage($pageIndex, $pageSize) {
+        $this->_page($pageIndex, $pageSize);
+
+        $records = $this->queryAll();
+
+        $sql = reset(explode(' LIMIT', $this->_sql));
+        $sql = end(explode(' FROM ', $sql));
+        $sql = 'select count(*) FROM '.$sql;
+
+        $totalRecords = $this->_driver->get_value($sql);
+
+        $pageModel = array(
+            'pageIndex' => $pageIndex,
+            'pageSize' => $pageSize,
+            'totalRecords'=> $totalRecords,
+            'records' => $records
+        );
+
+        return $pageModel;
     }
 
 }

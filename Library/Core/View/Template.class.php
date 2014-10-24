@@ -46,8 +46,6 @@ class Template {
             }
         }
 
-        //debug($matchs);
-
         $template = preg_replace("/\<\!\-\-\{(.+?)\}\-\-\>/s", "{\\1}", $template);//去除html注释符号<!---->
 		$template = preg_replace("/\{($this->var_regexp)\}/", "<?php echo \\1;?>", $template);//替换带{}的变量
 		$template = preg_replace("/\{($this->const_regexp)\}/", "<?php echo \\1;?>", $template);//替换带{}的常量

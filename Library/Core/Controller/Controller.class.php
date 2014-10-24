@@ -13,7 +13,6 @@ abstract class Controller implements IController {
     private $view;
 
     protected $module;
-    protected $controller;
     protected $action;
 
     private function _initViewInstance() {
@@ -27,21 +26,14 @@ abstract class Controller implements IController {
         $this->view->assign($key, $value);
     }
 
-    protected function _display($action = null, $module = null) {
+    protected function _display($path) {
         $this->_initViewInstance();
 
-        if($action != null)
-            $this->action = $action;
-
-        if($module != null)
-            $this->module = $module;
-
-        $this->view->display($this->action, $this->module);
+        $this->view->display($path);
     }
 
     protected function _output($data, $type = null) {
-        if($type == null)
-            $type = C('default_output_type');
+        $type = strtolower($type);
 
         switch($type) {
             case 'json':
@@ -79,10 +71,6 @@ abstract class Controller implements IController {
 
     public function doActionFinish() {
 
-    }
-
-    public function setController($controller) {
-        $this->controller = $controller;
     }
 
     public function setModule($module) {

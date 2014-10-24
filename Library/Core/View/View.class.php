@@ -26,12 +26,9 @@ class View {
             unset($this->_var);
     }
 
-    public function display($action, $module) {
+    public function display($path) {
         //导出模板变量
         extract($this->_var);
-
-        //构造模板路径
-        $path = $module.'/'.$action;
 
         //渲染模板
         $template = new Template();

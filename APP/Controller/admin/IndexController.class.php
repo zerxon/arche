@@ -8,14 +8,14 @@
 import('Model.service.UserService');
 import('Model.service.StoreService');
 
-class AdminController extends Controller {
+class IndexController extends Controller {
 
     public function index() {
-        $this->_display('index');
+        $this->_display('admin/index');
     }
 
     public function signIn() {
-        $this->_display('signin');
+        $this->_display('admin/signin');
     }
 
     public function doSignIn() {

@@ -13,10 +13,13 @@ class User extends ARModel {
 
     protected  $_fields = array(
         'id'=>'id',
+        'tel'=>'tel',
         'name'=>'name',
         'password'=>'password',
-        'phone'=>'phone',
-        'isAdmin'=>'is_admin'
+        'fullName'=>'full_name',
+        'avatar'=>'avatar',
+        'other_tel'=>'tel',
+        'isMerchant'=>'is_Merchant'
     );
 
 }

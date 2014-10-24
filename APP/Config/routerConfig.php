@@ -52,4 +52,6 @@ return array(
             '/detail\.html'=>'detail'
         )
     ),
+    '/admin/hotel' => 'admin/Hotel',
+    '/admin' => 'admin/Index',
 );

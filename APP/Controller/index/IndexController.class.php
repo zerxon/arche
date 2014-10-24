@@ -14,6 +14,6 @@ class IndexController extends Controller {
 
     public function newAction() {
         //echo 'Index page new action';
-        $this->_display();
+        $this->_display('index/newAction');
     }
 }

@@ -35,7 +35,6 @@
 $(function(){
 	DWZ.init("<?php echo PUBLIC_URL;?>dwz/dwz.frag.xml", {
 		loginUrl:"login_dialog.html", loginTitle:"登录",	// 弹出登录对话框
-		loginUrl:"login.html",	// 跳到登录页面
 		statusCode:{ok:200, error:300, timeout:301}, //【可选】
 		pageInfo:{pageNum:"pageNum", numPerPage:"numPerPage", orderField:"orderField", orderDirection:"orderDirection"}, //【可选】
 		keys: {statusCode:"statusCode", message:"message"}, //【可选】
@@ -86,12 +85,11 @@ $(function(){
                 </div>
                 <div class="accordion" fillSpace="sidebar">
                     <div class="accordionHeader">
-                        <h2><span>Folder</span>音乐管理</h2>
+                        <h2><span>Folder</span>租房管理</h2>
                     </div>
                     <div class="accordionContent">
                         <ul class="tree">
-                            <li><a href="<?php echo PUBLIC_URL;?>admin/music_list" target="navTab" rel="music_list">歌曲列表</a></li>
-                            <li><a href="<?php echo PUBLIC_URL;?>admin/cate_list" target="navTab" rel="cate_list">分类列表</a></li>
+                            <li><a href="<?php echo SITE_URL;?>admin/hotel/all" target="navTab" rel="hotel_all">宾馆列表</a></li>
                         </ul>
                     </div>
                     <div class="accordionHeader">

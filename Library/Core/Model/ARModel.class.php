@@ -24,7 +24,6 @@ abstract class ARModel extends Model {
     public function __construct() {
         $dbConfig = C('db');
         $this->_driver = MysqlDriver::getInstance($dbConfig);
-        //$this->_driver = new MysqlDriver($dbConfig); //需要修改
     }
 
     public function isEmpty() {
@@ -43,15 +42,16 @@ abstract class ARModel extends Model {
         }
 
         foreach($this->_fields as $field=>$tableField) {
-            if($field != $this->_primaryKey && (!$isNewRecord || $this->_fieldValues[$field])) {
+            //如果不是主键，或者存放字段的数组中已设置过该值则加入到添加/更新数组中
+            if($field != $this->_primaryKey && array_key_exists($field, $this->_fieldValues)) {
                 $record[$tableField] = slashes($this->_fieldValues[$field]);
             }
         }
 
         if($isNewRecord)
-            $result = $this->_driver->insertArr($record, $this->_tableName);
+            $result = $this->_driver->insertArr($record, $this->getTableName());
         else
-            $result = $this->_driver->updateArr($record, $this->_tableName, $where);
+            $result = $this->_driver->updateArr($record, $this->getTableName(), $where);
 
         return $result;
     }
@@ -64,7 +64,7 @@ abstract class ARModel extends Model {
         if(!$pKeyValue)
             error("primary key value not set");
 
-        $sql = "DELETE FROM $this->_tableName WHERE $pKey='$pKeyValue'";
+        $sql = "DELETE FROM $this->getTableName() WHERE $pKey='$pKeyValue'";
         $result = $this->_driver->query($sql);
 
         if($result)
@@ -90,7 +90,7 @@ abstract class ARModel extends Model {
             $strCondition = "$pKey='$value'";
         }
 
-        $sql = "SELECT * FROM $this->_tableName WHERE $strCondition";
+        $sql = "SELECT * FROM ".$this->getTableName()." WHERE $strCondition";
         $record = $this->_driver->once_fetch_assoc($sql);
 
         if($record) {
