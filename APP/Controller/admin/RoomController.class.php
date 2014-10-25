@@ -2,18 +2,18 @@
 /**
  * 
  * @author: wallace wallaceleung@163.com
- * @date: 14-10-21
+ * @date: 14-10-24
  */
 
-import('Model.service.HotelService');
+import('Model.service.RoomService');
 import('Library.Ext.DWZJson');
 
-class HotelController extends Controller {
+class RoomController extends Controller {
 
-    private $_hotelService;
+    private $_roomService;
 
     public function __construct() {
-        $this->_hotelService = HotelService::getInstance();
+        $this->_roomService = RoomService::getInstance();
     }
 
     public function all() {
@@ -26,47 +26,48 @@ class HotelController extends Controller {
         if(!$pageSize)
             $pageSize = 30;
 
-        $hotelsPage = $this->_hotelService->getHotelsByPage($pageIndex, $pageSize);
+        $roomsPage = $this->_roomService->getRoomsByPage($pageIndex, $pageSize);
 
-        $this->_assign('page', $hotelsPage);
-        $this->_display('admin/hotel_all');
+        $this->_assign('page', $roomsPage);
+        $this->_display('admin/room_all');
     }
 
     public function edit() {
-        $id = intval($_GET['hotel_id']);
+        $id = intval($_GET['room_id']);
 
         if($id > 0) {
-            $hotel = $this->_hotelService->getOneById($id);
-            $this->_assign('hotel', $hotel);
+            $room = $this->_roomService->getOneById($id);
+            $this->_assign('room', $room);
         }
 
-        $this->_display('admin/hotel_edit');
+        $this->_display('admin/room_edit');
     }
 
     public function doEdit() {
-        $id = intval($_POST['hotel_id']);
+        $id = intval($_POST['room_id']);
 
-        $hotel = new Hotel();
+        $room = new Room();
 
-        $hotel->id($id);
-        $hotel->name($_POST['name']);
-        $hotel->tel($_POST['tel']);
-        $hotel->address($_POST['address']);
-        $hotel->userId($_POST['user_id']);
-        $hotel->isOpening($_POST['is_opening'] == 'on');
+        $room->id($id);
+        $room->name($_POST['name']);
+        $room->hotelId($_POST['hotel_id']);
+        $room->price(floatval($_POST['price']));
+        $room->amount(intval($_POST['amount']));
+        $room->stock(intval($_POST['stock']));
+        $room->desc($_POST['desc']);
 
         if($id == 0) {
-            $hotel->addTime(time());
+            $room->stock($room->amount());
         }
 
-        $result = $this->_hotelService->save($hotel);
+        $result = $this->_roomService->save($room);
 
         $jsonObj = new DWZJson();
 
         if($result) {
             $jsonObj->statusCode = DWZStatusCode::SUCCESS;
             $jsonObj->message = '操作成功';
-            $jsonObj->navTabId = 'hotel_all';
+            $jsonObj->navTabId = 'room_all';
 
             if($id == 0)
                 $jsonObj->callbackType = DWZCallBackType::CLOSE_CURRENT;
@@ -79,15 +80,15 @@ class HotelController extends Controller {
     }
 
     public function delete() {
-        $id = $_GET['hotel_id'];
-        $status = $this->_hotelService->delete($id);
+        $id = $_GET['room_id'];
+        $status = $this->_roomService->delete($id);
 
         $jsonObj = new DWZJson();
 
         if($status) {
             $jsonObj->statusCode = DWZStatusCode::SUCCESS;
             $jsonObj->message = '删除成功';
-            $jsonObj->navTabId = 'hotel_all';
+            $jsonObj->navTabId = 'room_all';
         }
         else {
             $jsonObj->message = '删除失败';

@@ -14,18 +14,25 @@ class MysqlDriver {
 			error('The setting of PHP on server does not support mysqli');
 		}
 
-		if(!empty($dbConfig['host']) && !empty($dbConfig['user'])) {
-			$this->conn = mysqli_connect($dbConfig['host'], $dbConfig['user'], $dbConfig['pwd'],$dbConfig['name']) OR DIE("Connection failed, username or password was not correct") ;
-		}
+        if(empty($dbConfig['host'])) {
+            error("db config 'host' not set");
+        }
+        else if(empty($dbConfig['user'])) {
+            error("db config 'user' not set");
+        }
+        else if(empty($dbConfig['pwd'])) {
+            error("db config 'password' not set");
+        }
+        else if(empty($dbConfig['name'])) {
+            error("db config 'name' not set");
+        }
+
+        $this->conn = mysqli_connect($dbConfig['host'], $dbConfig['user'], $dbConfig['pwd'],$dbConfig['name'])
+            or die('Mysql database connect failed');
 
 		if ($this->getmysqlVersion() >'4.1'){
 			mysqli_query($this->conn,"SET NAMES 'utf8'");
 		}
-		
-		if(empty($dbConfig['name'])){
-			error('cannot find database');
-		}
-		
 	}
 
     public static function getInstance($dbConfig) {
@@ -171,7 +178,7 @@ class MysqlDriver {
 	function insertArr($arrData,$table,$where=''){
 		$Item = array();
 		foreach($arrData as $key=>$data){
-			$Item[] = "$key='".( $data)."'";
+			$Item[] = "`$key`='".( $data)."'";
 		}
 		$intStr = implode(',',$Item);
 
@@ -187,7 +194,7 @@ class MysqlDriver {
 		$Item = array();
 		foreach($arrData as $key => $value)
 		{
-			$Item[] = "$key='".($value)."'";
+			$Item[] = "`$key`='".($value)."'";
 		}
 		$upStr = implode(',',$Item);
 		$this->query("UPDATE $table  SET  $upStr $where");

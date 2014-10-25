@@ -11,6 +11,9 @@ import('Model.entity.User');
 Class Hotel extends ARModel {
     protected $_tableName = 'hotel';
 
+    //模型字段的主键, 默认为id
+    //protected $_primaryKey = 'id';
+
     protected $_fields = array(
         'id'=>'id',
         'name'=>'name',

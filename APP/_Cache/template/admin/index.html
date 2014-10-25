@@ -85,19 +85,21 @@ $(function(){
                 </div>
                 <div class="accordion" fillSpace="sidebar">
                     <div class="accordionHeader">
-                        <h2><span>Folder</span>租房管理</h2>
+                        <h2><span>Folder</span>宾馆管理</h2>
                     </div>
                     <div class="accordionContent">
                         <ul class="tree">
                             <li><a href="<?php echo SITE_URL;?>admin/hotel/all" target="navTab" rel="hotel_all">宾馆列表</a></li>
+                            <li><a href="<?php echo SITE_URL;?>admin/room/all" target="navTab" rel="room_all">房间列表</a></li>
                         </ul>
                     </div>
                     <div class="accordionHeader">
                         <h2><span>Folder</span>用户管理</h2>
                     </div>
                     <div class="accordionContent">
-                        <ul class="tree treeFolder treeCheck">
-
+                        <ul class="tree">
+                            <li><a href="<?php echo SITE_URL;?>admin/user/all" target="navTab" rel="user_all">用户列表</a></li>
+                            <li><a href="<?php echo SITE_URL;?>admin/user/all?type=merchant" target="navTab" rel="merchant_all">商家列表</a></li>
                         </ul>
                     </div>
 

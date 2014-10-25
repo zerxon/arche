@@ -21,30 +21,59 @@ class FilterHandler {
         return self::$_instance;
     }
 
-    public function filter($curController, $curAction) {
+    public function filter($module, $action) {
+        $pathInfo = $_SERVER['PATH_INFO'];
+        $uri = $pathInfo.end(explode($pathInfo, $_SERVER['REQUEST_URI']));
+
         if(is_array($this->_filterConfigs) && count($this->_filterConfigs) > 0) {
             foreach($this->_filterConfigs as $filter=>$config) {
-                $controllers = $config['controllers'];
-                if(is_array($controllers) && count($controllers) > 0) {
-                    foreach($controllers as $controller=>$actions) {
-                        if($controller === $curController) {
-                            foreach($actions as $action) {
-                                if($action === $curAction) {
-                                    import('Filter.'.$filter);
+                if($config['Enable']) {
+                    $path = str_replace('/', '\/', $config['Path']);
+                    if(preg_match("/$path/", $uri)) {
+                        $type = $config['Type'];
+                        $options = array();
+                        $status = false;
 
-                                    $filterInstance = new $filter();
-                                    $status =  $filterInstance->doFilter();
+                        if(is_array($config['Option']))
+                            $options = $config['Option'];
+                        else
+                            array_push($options, $config['Option']);
 
-                                    if($status == false)
-                                        return false;
-
+                        //根据类型进行处理
+                        if($type == FilterType::ALL) {
+                            $status = true;
+                        }
+                        elseif($type == FilterType::CONTAIN) {
+                            foreach($options as $option) {
+                                $option = str_replace('/', '\/', $option);
+                                if(preg_match($option, $uri)) {
+                                    $status = true;
                                     break;
                                 }
                             }
                         }
-                        else {
-                            continue;
+                        elseif($type == FilterType::EXCEPT) {
+                            foreach($options as $option) {
+                                $option = str_replace('/', '\/', $option);
+                                if(!preg_match("/$option/", $uri)) {
+                                    $status = true;
+                                    break;
+                                }
+                            }
                         }
+
+                        //如果有匹配，则执行过滤操作
+                        if($status) {
+                            import('Filter.'.$filter);
+
+                            $context = new FilterContext($module, $action, $_SERVER['REQUEST_URI']);
+
+                            $filterInstance = new $filter();
+                            $result =  $filterInstance->doFilter($context);
+
+                            return $result;
+                        }
+
                     }
                 }
                 else {
@@ -56,4 +85,10 @@ class FilterHandler {
         return true;
     }
 
+}
+
+class FilterType {
+    const CONTAIN = 0;
+    const EXCEPT = 1;
+    const ALL = 2;
 }

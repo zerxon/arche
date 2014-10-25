@@ -1,4 +1,4 @@
-<form id="pagerForm" method="post" action="{SITE_URL}admin/hotel/all">
+<form id="pagerForm" method="post" action="{SITE_URL}admin/room/all">
 <!-- 
 	<input type="hidden" name="status" value="${param.status}">
 	<input type="hidden" name="keywords" value="${param.keywords}" />
@@ -15,9 +15,9 @@
 <div class="pageContent">
 	<div class="panelBar">
 		<ul class="toolBar">
-			<li><a class="add" href="{SITE_URL}admin/hotel/edit" target="navTab"><span>添加</span></a></li>
-			<li><a class="delete" href="{SITE_URL}admin/hotel/delete?hotel_id=!#{hotel_id}#!" target="ajaxTodo" title="确定要删除吗?"><span>删除</span></a></li>
-			<li><a class="edit" href="{SITE_URL}admin/hotel/edit?hotel_id=!#{hotel_id}#!" target="navTab"><span>修改</span></a></li>
+			<li><a class="add" href="{SITE_URL}admin/room/edit" target="navTab"><span>添加</span></a></li>
+			<li><a class="delete" href="{SITE_URL}admin/room/delete?room_id=!#{room_id}#!" target="ajaxTodo" title="确定要删除吗?"><span>删除</span></a></li>
+			<li><a class="edit" href="{SITE_URL}admin/room/edit?room_id=!#{room_id}#!" target="navTab"><span>修改</span></a></li>
 			<li class="line">line</li>
 			<!--
 			<li><a class="icon" href="demo/common/dwz-team.xls" target="dwzExport" targetType="navTab" title="实要导出这些记录吗?"><span>导出EXCEL</span></a></li>
@@ -27,21 +27,23 @@
 	<table class="table" width="100%" layoutH="138">
 		<thead>
 			<tr>
-				<th width="130">ID</th>
-				<th>旅馆名称</th>
-				<th width="100">是否营业中</th>
-                <th width="250">拥有者</th>
-				<th width="160">添加时间</th>
+                <th width="130">ID</th>
+                <th>类型名称</th>
+                <th>价格</th>
+                <th>总量</th>
+                <th>空闲量</th>
+                <th>所属宾馆</th>
 			</tr>
 		</thead>
 		<tbody>
-            {loop $page['records'] $hotel}
-			<tr target="hotel_id" rel="{$hotel['id']}">
-                <td align="center">{$hotel['id']}</td>
-                <td align="center">{$hotel['name']}</td>
-                <td align="center">{if $hotel['isOpening']}是{else}否{/if}</td>
-                <td align="center">{$hotel['user']['name']}</td>
-                <td align="center">{php echo date('Y-m-d H:i:s', $hotel['addTime'])}</td>
+            {loop $page['records'] $room}
+			<tr target="room_id" rel="{$room['id']}">
+                <td align="center">{$room['id']}</td>
+                <td align="center">{$room['name']}</td>
+                <td align="center">{$room['price']}</td>
+                <td align="center">{$room['amount']}</td>
+                <td align="center">{$room['stock']}</td>
+                <td align="center">{$room['hotel']['name']}</td>
 			</tr>
             {/loop}
 		</tbody>

@@ -20,14 +20,14 @@ class HotelService {
         return self::$_instance;
     }
 
-    public function __construct() {
-        $this->_hotelORM = new ORM('hotel');
+    private function __construct() {
+        $this->_hotelORM = new ORM('Hotel');
     }
 
     public function getHotelsByPage($pageIndex, $pageSize) {
         $hotelsPage = $this->_hotelORM->selectAll()
             ->fetch('user')
-            ->orderBy(array('id'=>'desc'))
+            ->orderBy(array('id'=>ORDER_TYPE::DESC))
             ->queryPage($pageIndex, $pageSize);
 
         return $hotelsPage;

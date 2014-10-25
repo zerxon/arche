@@ -50,19 +50,8 @@ abstract class Controller implements IController {
         }
     }
 
-    public function _redirect($module, $action, $params = array()) {
-        $url = '/'.strtolower($module).'/'.strtolower($action);
-
-        if(is_array($params) && count($params) > 0) {
-            $url .= '?';
-            foreach($params as $key=>$value) {
-                $url .= $key.'='.$value.'&';
-            }
-            $url = substr($url, 0, strlen($url) - 1);
-        }
-
-        header("location:".$url);
-        exit;
+    public function _redirect($url) {
+        header("Location:".$url);
     }
 
     public function doActionStart() {
@@ -81,5 +70,5 @@ abstract class Controller implements IController {
         $this->action = $action;
     }
 
-    public abstract function index();
+    //public abstract function index();
 }

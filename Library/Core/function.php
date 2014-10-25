@@ -135,7 +135,3 @@ function error($str) {
         header('HTTP/1.1 404 Not Found');
     }
 }
-
-function route($module, $action) {
-    
-}

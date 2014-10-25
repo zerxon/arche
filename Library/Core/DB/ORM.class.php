@@ -271,8 +271,29 @@ class ORM {
         return $this;
     }
 
-    public function where() {
+    public function where($params = null, $type = 'AND') {
         $this->_sql .= " WHERE";
+
+        if(is_array($params) && count($params) > 0) {
+            $index = 0;
+            foreach($params as $filed => $value) {
+                if($index == 0) {
+                    $this->field($filed);
+                }
+                else {
+                    if(strtoupper($type) == 'AND')
+                        $this->andField($filed);
+                    else if(strtoupper($type) == 'OR')
+                        $this->orField($filed);
+                    else
+                        error("where condition type only allow AND/OR");
+                }
+
+                $this->eq($value);
+
+                $index++;
+            }
+        }
 
         return $this;
     }
@@ -287,6 +308,13 @@ class ORM {
     public function andField($field) {
         $tableFieldWithTableName = $this->_reflection->getTableFieldWithTableName($field);
         $this->_sql .= " AND $tableFieldWithTableName";
+
+        return $this;
+    }
+
+    public function orField($field) {
+        $tableFieldWithTableName = $this->_reflection->getTableFieldWithTableName($field);
+        $this->_sql .= " OR $tableFieldWithTableName";
 
         return $this;
     }

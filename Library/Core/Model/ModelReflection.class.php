@@ -133,26 +133,6 @@ class ModelReflection {
             }
         }
 
-        //转换关联映射对象
-        /*
-        $mappers = $this->_instance->getMappers();
-        foreach($mappers as $key => $mapper) {
-            if($mapper['fetch'] == FetchType::EAGER) {
-                $targetClass = new ReflectionClass($mapper['target']);
-                $targetInstance = $targetClass->newInstance();
-
-                $targetFields = $targetInstance->getFields();
-                foreach($targetFields as $targetField=>$targetTableField) {
-                    $targetAlias = $this->getTableFieldAlias($targetTableField);
-                    if(isset($record[$targetAlias])) {
-                        $setter = 'set'.ucfirst($targetField);
-                        $targetInstance->$setter($record[$targetAlias]);
-                    }
-                }
-            }
-        }
-        */
-
         return $instance;
     }
 

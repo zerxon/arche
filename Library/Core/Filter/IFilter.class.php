@@ -6,5 +6,5 @@
  */
 
 interface IFilter {
-    public function doFilter();
+    public function doFilter($context);
 }

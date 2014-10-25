@@ -30,6 +30,8 @@ $baseUrl = $protocol.$_SERVER['HTTP_HOST'].str_replace($phpName, '', $scriptName
 define('BASE_URL', $baseUrl);
 define('PUBLIC_URL', BASE_URL.'Public/');
 
+defined('SITE_URL') or define('SITE_URL', BASE_URL);
+
 include LIBRARY_PATH.'Core/function.php';
 C(tp_include(CONFIG_PATH.'baseConfig.php'));
 tp_include(LIBRARY_PATH.'Core/Router.class.php');

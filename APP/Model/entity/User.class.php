@@ -18,8 +18,9 @@ class User extends ARModel {
         'password'=>'password',
         'fullName'=>'full_name',
         'avatar'=>'avatar',
-        'other_tel'=>'tel',
-        'isMerchant'=>'is_Merchant'
+        'otherTel'=>'other_tel',
+        'isMerchant'=>'is_merchant',
+        'addTime'=>'add_time'
     );
 
 }

@@ -156,8 +156,9 @@ class Router
         */
     }
 
-    //根据host选择不同的base controller
+    //加载base controller配置信息
     private function _loadBaseController() {
+        $baseControllerClass = '';
         $controllerConfig = C('controller');
         if (is_array($controllerConfig)) {
             $baseControllerClass = $controllerConfig['base_class'];
@@ -167,6 +168,8 @@ class Router
         } else {
             error('No controller');
         }
+
+        return $baseControllerClass;
     }
 
     /**
@@ -176,7 +179,7 @@ class Router
      * @param $module
      * @param $action
      */
-    public function _runController($module, $controllerClass, $action) {
+    private function _runController($module, $controllerClass, $action) {
 
         if (class_exists($controllerClass)) {
             $status = true;
@@ -184,27 +187,43 @@ class Router
             //过滤器
             if (C('filter_enable')) {
                 import('Library.Core.Filter.FilterHandler');
-                $filterController = FilterHandler::getInstance();
-                $status = $filterController->filter($controllerClass, $action);
+                $filterHandler = FilterHandler::getInstance();
+                $status = $filterHandler->filter($module, $action);
             }
 
+            //如果通过了过滤器
             if ($status) {
-                $controllerInstance = new $controllerClass();
-                $controllerInstance->setModule($module);
 
-                if (method_exists($controllerInstance, $action)) {
+                //判断控制器是否存在该方法，区分大小写
+                $reflect = new ReflectionClass($controllerClass);
+                $methods = $reflect->getMethods();
+
+                $methodExists = false;
+                foreach($methods as $method) {
+                    if($method->name === $action) {
+                        $methodExists = true;
+                        break;
+                    }
+                }
+
+                //若存在，则调用该action
+                if ($methodExists) {
+                    $controllerInstance = new $controllerClass();
+
+                    $controllerInstance->setModule($module);
                     $controllerInstance->setAction($action);
                     $controllerInstance->doActionStart();
                     $controllerInstance->$action();
                     $controllerInstance->doActionFinish();
                 } else {
-                    error($action . ' method undefined');
+                    error("'$action' method of class '".$module.$this->_controllerClassSuffix."' undefined");
                 }
-            } else {
-                error('filter can not pass');
+            }
+            else {
+                error('Filter validation failed');
             }
         } else {
-            error($controllerClass . ' class undefined');
+            error("class '".$module.$this->_controllerClassSuffix."' class undefined");
         }
 
     }

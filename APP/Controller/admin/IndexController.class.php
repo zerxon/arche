@@ -15,6 +15,7 @@ class IndexController extends Controller {
     }
 
     public function signIn() {
+        debug(base64_decode($_GET['redirect']));
         $this->_display('admin/signin');
     }
 

@@ -1,0 +1,101 @@
+<div class="pageContent">
+
+	<form method="post"
+		action="{SITE_URL}admin/user/doEdit"
+		class="pageForm required-validate"
+		onsubmit="return validateCallback(this, navTabAjaxDone);">
+		<div class="pageFormContent" layoutH="56">
+			{if $user['id'] > 0}
+				<p>
+					<label>
+						ID：
+					</label>
+					<input name="user_id" type="text" size="30"	value="{$user['id']}" readonly="readonly" />
+				</p>
+			{/if}
+
+            <p>
+                <label>
+                    联系电话：
+                </label>
+                <input name="tel" class="required" type="text" size="30"
+                       value="{$user['tel']}" alt="" />
+            </p>
+
+            <p>
+                <label>
+                    密码：
+                </label>
+                <input name="password" class="required" type="text" size="30"
+                       value="{$user['password']}" alt="" />
+            </p>
+
+			<p>
+				<label>
+					昵称：
+				</label>
+				<input name="name" class="required" type="text" size="30"
+					value="{$user['name']}" alt="" />
+			</p>
+
+            <p>
+                <label>
+                    真实姓名：
+                </label>
+                <input name="full_name" type="text" size="30"
+                       value="{$user['fullName']}" alt="" />
+            </p>
+
+            <p>
+                <label>
+                    其它电话：
+                </label>
+                <input name="other_tel" class="required" type="text" size="30"
+                       value="{$user['otherTel']}" alt="" />
+            </p>
+
+            {if $user['id'] > 0}
+            <p>
+                <label>
+                    添加时间：
+                </label>
+                <input type="text" size="30"
+                       value="{php echo date('Y-m-d H:i:s', $user['addTime'])}" readonly="readonly" alt="" />
+            </p>
+			{/if}
+
+            <div class="divider"></div>
+
+            <p>
+                <label>
+                    商家：
+                </label>
+                <input type="checkbox" name="is_merchant" value="1" {if $user['isMerchant']}checked="checked"{/if}>
+            </p>
+
+		</div>
+		
+		<div class="formBar">
+			<ul>
+				<li>
+					<div class="buttonActive">
+						<div class="buttonContent">
+							<button type="submit">
+								保存
+							</button>
+						</div>
+					</div>
+				</li>
+				<li>
+					<div class="button">
+						<div class="buttonContent">
+							<button type="button" class="close">
+								取消
+							</button>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</form>
+</div>

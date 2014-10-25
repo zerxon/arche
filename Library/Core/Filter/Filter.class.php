@@ -7,9 +7,8 @@
 
 import('Library.Core.Controller.Controller');
 import('Library.Core.Filter.IFilter');
+import('Library.Core.Filter.FilterContext');
 
 abstract class Filter extends Controller implements IFilter {
-    public function index() {
 
-    }
 }

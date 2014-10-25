@@ -7,18 +7,17 @@
 
 import('Library.Core.Filter.Filter');
 
-class AdminSignInFilter extends Filter {
+class AdminPermissionFilter extends Filter {
 
-    public function doFilter() {
-        return true;
+    public function doFilter($context) {
 
         $user = $_SESSION['user'];
 
-        if(is_object($user) && intval($user->isAdmin()) === 1) {
+        if(!empty($user)) {
             return true;
         }
         else {
-            $this->_redirect('Admin','signIn');
+            $this->_redirect(SITE_URL.'admin/signIn?redirect='.base64_encode($context->url));
             return false;
         }
     }

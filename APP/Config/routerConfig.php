@@ -52,6 +52,8 @@ return array(
             '/detail\.html'=>'detail'
         )
     ),
+    '/admin/room' => 'admin/Room',
+    '/admin/user' => 'admin/User',
     '/admin/hotel' => 'admin/Hotel',
     '/admin' => 'admin/Index',
 );
