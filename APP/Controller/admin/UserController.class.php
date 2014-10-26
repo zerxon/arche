@@ -71,6 +71,7 @@ class UserController extends Controller {
         $user->fullName($_POST['full_name']);
         $user->otherTel($_POST['other_tel']);
         $user->isMerchant(intval($_POST['is_merchant']));
+        $user->isAdmin(intval($_POST['is_admin']));
 
         if($id == 0) {
             $user->addTime(time());

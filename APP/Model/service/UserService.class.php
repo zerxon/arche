@@ -62,20 +62,19 @@ class UserService {
         return $status;
     }
 
-    public function signIn($userName, $password) {
+    public function signIn($tel, $password) {
         $status = false;
 
         $user = new User();
         $user->findOne(array(
-            'name'=>$userName,
+            'tel'=>$tel,
             'password'=>$password
         ));
 
         if(!$user->isEmpty()) {
             $status = true;
 
-            session_start();
-            $_SESSION['user'] = $user;
+            $_SESSION['user'] = $user->toArray();
         }
 
         return $status;

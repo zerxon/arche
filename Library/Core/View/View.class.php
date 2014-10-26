@@ -34,6 +34,8 @@ class View {
         $template = new Template();
         $cacheFile = $template->compile($path);
 
+        //debug(include 'APP/_Cache/template/admin/sign_in1.html');
+
         include_once $cacheFile;
     }
 }

@@ -74,9 +74,16 @@
 
             <p>
                 <label>
-                    审核通过：
+                    审核：
                 </label>
-                <input type="checkbox" name="is_check" {if $hotel['isCheck']}checked="checked"{/if}>
+                <input type="radio" name="status" value="0" {if $hotel['status']==0}checked="checked"{/if}>&nbsp;
+                <font>审核中</font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+                <input type="radio" name="status" value="1" {if $hotel['status']==1}checked="checked"{/if}>&nbsp;
+                <font color="green">已通过</font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+                <input type="radio" name="status" value="2" {if $hotel['status']==2}checked="checked"{/if}>
+                <font color="red">失败</font>&nbsp;
             </p>
 
 		</div>

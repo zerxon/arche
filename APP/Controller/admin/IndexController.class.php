@@ -11,30 +11,37 @@ import('Model.service.StoreService');
 class IndexController extends Controller {
 
     public function index() {
+        func_get_args();
         $this->_display('admin/index');
     }
 
     public function signIn() {
-        debug(base64_decode($_GET['redirect']));
-        $this->_display('admin/signin');
+        $redirect = $_GET['redirect'];
+
+        $this->_display('admin/sign_in');
     }
 
     public function doSignIn() {
-        $userName = trim($_POST['username']);
+        $tel = trim($_POST['tel']);
         $password = trim($_POST['password']);
 
-        $userName = 'admin';
-        $password = '900903';
-
-        if($userName && $password) {
+        if($tel && $password) {
             $userService = UserService::getInstance();
-            $status = $userService->signIn($userName, $password);
+            $status = $userService->signIn($tel, $password);
 
            if($status) {
-               debug($_SESSION['user']);
+                $this->_redirect(SITE_URL.'admin');
+           }
+           else {
+               debug('tel or password error');
            }
         }
 
+    }
+
+    public function signOut() {
+        session_destroy();
+        $this->_redirect(SITE_URL.'admin/signIn');
     }
 
     public function storeList() {
@@ -59,6 +66,7 @@ class IndexController extends Controller {
     }
 
     public function doStoreEdit() {
+
         $storeId = intval($_POST['store_id']);
         if($storeId > 0) {
             $store = StoreService::getInstance()->getStoreById($storeId);

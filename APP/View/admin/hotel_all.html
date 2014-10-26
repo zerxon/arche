@@ -29,9 +29,10 @@
 			<tr>
 				<th width="130">ID</th>
 				<th>旅馆名称</th>
-				<th width="100">是否营业中</th>
-                <th width="250">拥有者</th>
-				<th width="160">添加时间</th>
+				<th>是否营业中</th>
+                <th>拥有者</th>
+                <th>审核状态</th>
+				<th>添加时间</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -41,6 +42,17 @@
                 <td align="center">{$hotel['name']}</td>
                 <td align="center">{if $hotel['isOpening']}是{else}否{/if}</td>
                 <td align="center">{$hotel['user']['name']}</td>
+
+                <td align="center">
+                    {if $hotel['status']==0}
+                        <font style="line-height:21px">审核中</font>
+                    {elseif $hotel['status']==1}
+                        <font style="line-height:21px;" color="green">已通过</font>
+                    {else}
+                        <font style="line-height:21px;" color="red">失败</font>
+                    {/if}
+                </td>
+
                 <td align="center">{php echo date('Y-m-d H:i:s', $hotel['addTime'])}</td>
 			</tr>
             {/loop}

@@ -32,6 +32,8 @@
 				<th>真实姓名</th>
                 <th>联系电话</th>
                 <th>其它电话</th>
+                <th>是否为商家</th>
+                <th>是否为管理员</th>
 				<th>添加时间</th>
 			</tr>
 		</thead>
@@ -43,6 +45,8 @@
                 <td align="center">{$user['fullName']}</td>
                 <td align="center">{$user['tel']}</td>
                 <td align="center">{$user['otherTel']}</td>
+                <td align="center">{if $user['isMerchant']}是{else}否{/if}</td>
+                <td align="center">{if $user['isAdmin']}是{else}否{/if}</td>
                 <td align="center">{php echo date('Y-m-d H:i:s', $user['addTime'])}</td>
 			</tr>
             {/loop}

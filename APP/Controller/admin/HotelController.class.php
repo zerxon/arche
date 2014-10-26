@@ -54,6 +54,7 @@ class HotelController extends Controller {
         $hotel->address($_POST['address']);
         $hotel->userId($_POST['user_id']);
         $hotel->isOpening($_POST['is_opening'] == 'on');
+        $hotel->status(intval($_POST['status']));
 
         if($id == 0) {
             $hotel->addTime(time());

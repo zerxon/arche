@@ -46,17 +46,18 @@ class FilterHandler {
                         elseif($type == FilterType::CONTAIN) {
                             foreach($options as $option) {
                                 $option = str_replace('/', '\/', $option);
-                                if(preg_match($option, $uri)) {
+                                if(preg_match("/$option/", $uri)) {
                                     $status = true;
                                     break;
                                 }
                             }
                         }
                         elseif($type == FilterType::EXCEPT) {
+                            $status = true;
                             foreach($options as $option) {
                                 $option = str_replace('/', '\/', $option);
-                                if(!preg_match("/$option/", $uri)) {
-                                    $status = true;
+                                if(preg_match("/$option/", $uri)) {
+                                    $status = false;
                                     break;
                                 }
                             }

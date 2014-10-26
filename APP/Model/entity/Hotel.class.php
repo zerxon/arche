@@ -20,6 +20,7 @@ Class Hotel extends ARModel {
         'tel'=>'tel',
         'address'=>'address',
         'isOpening'=>'is_opening',
+        'status'=>'status',
         'addTime'=>'add_time',
         'userId'=>'user_id'
     );

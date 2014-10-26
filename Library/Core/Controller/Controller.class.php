@@ -52,6 +52,7 @@ abstract class Controller implements IController {
 
     public function _redirect($url) {
         header("Location:".$url);
+        exit;
     }
 
     public function doActionStart() {

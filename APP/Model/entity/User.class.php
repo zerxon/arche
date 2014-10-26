@@ -20,6 +20,7 @@ class User extends ARModel {
         'avatar'=>'avatar',
         'otherTel'=>'other_tel',
         'isMerchant'=>'is_merchant',
+        'isAdmin' => 'is_admin',
         'addTime'=>'add_time'
     );
 
