@@ -6,7 +6,7 @@
  */
 
 return array(
-    'is_debug'=>1,
+    'is_debug'=>true,
     'db'=>array(
         'host'=>'localhost',
         'user'=>'root',
@@ -18,7 +18,12 @@ return array(
         'base_class'=>'Library.Core.Controller.Controller',
         'class_suffix'=>'Controller'
     ),
+    'view'=>array(
+        'cache_enable'=>true,
+        'cache_expiry'=>86400,
+        'cache_folder'=>'template',
+        'suffix'=>'.html'
+    ),
     'api_format'=>'json', /* string | json | xml */
-    'tpl'=>'.html',
     'filter_enable'=>true
 );

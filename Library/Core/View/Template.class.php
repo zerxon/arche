@@ -5,18 +5,22 @@ class Template {
     var $vtag_regexp = "\<\?php echo (\@?\\\$[a-zA-Z_][\\\$\w->\(\)]*(?:\[[\w\-\.\"\'\[\]\$]+\])*)\;\?\>";
     var $const_regexp = "\{([\w]+)\}";
 
-    private $_templateFolder = 'template';
+    public function compile($tplName, $tplPath, $cachePath, $cacheEnable, $cacheExpiry) {
+        $cacheFile = $cachePath.$tplName;
+        if(file_exists($cacheFile)) {
 
-    public function compile($tplName) {
+            //如果开启了缓存，且现在时间与修改时间之差大于缓存过期时间，则重新渲染模板文件
+            if($cacheEnable && (time() - filemtime($cacheFile) > $cacheExpiry)) {
+                $tplFile = $tplPath.$tplName;
+                $template = file_get_contents($tplFile);
+                $template = $this->_parse($template);
 
-        $tplName = $tplName.C('tpl');
-        $tplFile = VIEW_PATH.$tplName;
-        $template = file_get_contents($tplFile);
-        $template = $this->_parse($template);
+                makeDirectory(dirname($cacheFile));
+                isWriteFile($cacheFile, $template, $mod = 'w', true);
+            }
+        }
 
-        $cacheFile = CACHE_PATH.$this->_templateFolder.'/'.$tplName;
-        makeDirectory(dirname($cacheFile));
-        isWriteFile($cacheFile, $template, $mod = 'w', TRUE);
+        debug($cacheFile);
 
         return $cacheFile;
     }

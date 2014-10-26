@@ -26,15 +26,19 @@ class View {
             unset($this->_var);
     }
 
-    public function display($path) {
+    public function display($tplName) {
         //导出模板变量
         extract($this->_var);
 
         //渲染模板
-        $template = new Template();
-        $cacheFile = $template->compile($path);
+        $viewConfig = C('view');
+        $tplName = $tplName.$viewConfig['suffix'];
+        $cacheEnable = $viewConfig['cache_enable'];
+        $cacheExpiry = $viewConfig['cache_expiry'];
+        $cachePath = CACHE_PATH.$viewConfig['cache_folder'].'/';
 
-        //debug(include 'APP/_Cache/template/admin/sign_in1.html');
+        $template = new Template();
+        $cacheFile = $template->compile($tplName, VIEW_PATH, $cachePath, $cacheEnable, $cacheExpiry);
 
         include_once $cacheFile;
     }
