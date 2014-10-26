@@ -19,7 +19,7 @@ return array(
         'class_suffix'=>'Controller'
     ),
     'view'=>array(
-        'cache_enable'=>true,
+        'cache_enable'=>false,
         'cache_expiry'=>86400,
         'cache_folder'=>'template',
         'suffix'=>'.html'

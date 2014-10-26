@@ -9,8 +9,8 @@ class Template {
         $cacheFile = $cachePath.$tplName;
         if(file_exists($cacheFile)) {
 
-            //如果开启了缓存，且现在时间与修改时间之差大于缓存过期时间，则重新渲染模板文件
-            if($cacheEnable && (time() - filemtime($cacheFile) > $cacheExpiry)) {
+            //如果关闭了缓存，且现在时间与修改时间之差大于缓存过期时间，则重新渲染模板文件
+            if(!$cacheEnable || (time() - filemtime($cacheFile) > $cacheExpiry)) {
                 $tplFile = $tplPath.$tplName;
                 $template = file_get_contents($tplFile);
                 $template = $this->_parse($template);
@@ -19,8 +19,6 @@ class Template {
                 isWriteFile($cacheFile, $template, $mod = 'w', true);
             }
         }
-
-        debug($cacheFile);
 
         return $cacheFile;
     }
