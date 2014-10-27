@@ -62,7 +62,7 @@ class UserService {
         return $status;
     }
 
-    public function signIn($tel, $password) {
+    public function adminSignIn($tel, $password) {
         $status = false;
 
         $user = new User();
@@ -71,10 +71,9 @@ class UserService {
             'password'=>$password
         ));
 
-        if(!$user->isEmpty()) {
+        if(!$user->isEmpty() && $user->isAdmin()) {
             $status = true;
-
-            $_SESSION['user'] = $user->toArray();
+            $_SESSION[SESSION_ADMIN] = $user->toArray();
         }
 
         return $status;

@@ -116,17 +116,17 @@ class ORM {
             else
                 $parentMapperKey = $key;
 
-            $targetClass = $mapper['target'];
+            $targetClass = $mapper['Target'];
             $targetReflection = new ModelReflection($targetClass);
             $targetTableName = $targetReflection->getTableName();
 
             //查询条件
             $mappingConditionArray = array();
-            foreach($mapper['mapping'] as $field=>$targetField) {
+            foreach($mapper['Mapping'] as $field=>$targetField) {
                 $targetTableFieldWithTableName = $targetReflection->getTableField($targetField);
 
                 $getFieldValue = 'get'.ucfirst($field);
-                $str = "$targetTableFieldWithTableName=".$object->$getFieldValue();
+                $str = "`$targetTableFieldWithTableName`='".slashes($object->$getFieldValue())."'";
                 array_push($mappingConditionArray, $str);
             }
 
@@ -150,7 +150,7 @@ class ORM {
             $setMappingField = 'set'.ucfirst($key);
 
             //判断类型
-            if($mapper['type'] == 'hasMany') {
+            if($mapper['Type'] == 'hasMany') {
                 $targetRecords = $this->_driver->fetch_all_assoc($sql);
 
                 if($targetRecords) {
@@ -172,7 +172,7 @@ class ORM {
                     $object->$setMappingField(null);
                 }
             }
-            elseif($mapper['type'] == 'hasOne') {
+            elseif($mapper['Type'] == 'hasOne') {
                 $targetRecord = $this->_driver->once_fetch_assoc($sql);
 
                 if($targetRecord) {

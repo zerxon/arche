@@ -29,10 +29,10 @@ abstract class Model {
     protected $_mappers = array(
         /*
         '[mapperFiledName]'=>array(
-            'type'=>'[hasMany | hasOne]',
-            'fetch'=>[FetchType::EAGER | FetchType::LAZY],
-            'target'=>'[targetTableName]',
-            'mapping'=>array(
+            'Type'=>'[hasMany | hasOne]',
+            'Fetch'=>[FetchType::EAGER | FetchType::LAZY],
+            'Target'=>'[targetTableName]',
+            'Mapping'=>array(
                 '[sourceField]'=>'[targetFiled]'
             )
         ),

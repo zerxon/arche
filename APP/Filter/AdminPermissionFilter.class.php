@@ -11,7 +11,7 @@ class AdminPermissionFilter extends Filter {
 
     public function doFilter($context) {
 
-        $user = $_SESSION['user'];
+        $user = $_SESSION[SESSION_ADMIN];
 
         if(!empty($user)) {
             return true;

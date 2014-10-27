@@ -24,10 +24,10 @@ class Room extends ARModel {
 
     protected $_mappers = array(
         'hotel' => array(
-            'type' => 'hasOne',
-            'fetch' => FetchType::LAZY,
-            'target' => 'Hotel',
-            'mapping' => array(
+            'Type' => 'hasOne',
+            'Fetch' => FetchType::LAZY,
+            'Target' => 'Hotel',
+            'Mapping' => array(
                 'hotelId' => 'id'
             )
         )

@@ -75,7 +75,7 @@ class ModelReflection {
         if($isActive) {
             $activeMappers = array();
             foreach($allMappers as $key=>$mapper) {
-                if($mapper['fetch']) {
+                if($mapper['Fetch']) {
                     $activeMappers[$key] = $mapper;
                 }
             }
@@ -93,7 +93,7 @@ class ModelReflection {
         if(is_array($key)) {
             foreach($key as $index=>$mapperName) {
                 if(isset($mappers[$mapperName])) {
-                    $mappers[$mapperName]['fetch'] = FetchType::EAGER;
+                    $mappers[$mapperName]['Fetch'] = FetchType::EAGER;
                     //unset($key[$index]);
                 }
                 elseif(strstr($mapperName, '.') || $parentMapperKey != null) {
@@ -101,7 +101,7 @@ class ModelReflection {
                         //debug($this->_className." ".$parentMapperKey." ".$mapperName, false);
                         $mapperName = str_replace($parentMapperKey.'.', '', $mapperName);
                         if(isset($mappers[$mapperName]))
-                            $mappers[$mapperName]['fetch'] = FetchType::EAGER;
+                            $mappers[$mapperName]['Fetch'] = FetchType::EAGER;
                     }
                 }
                 else{
@@ -111,7 +111,7 @@ class ModelReflection {
         }
         else {
             if(isset($mappers[$key])) {
-                $mappers[$key]['fetch'] = FetchType::EAGER;
+                $mappers[$key]['Fetch'] = FetchType::EAGER;
             }
             else {
                 error("Model mapper '$key' does not exist");

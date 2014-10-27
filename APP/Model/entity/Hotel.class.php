@@ -8,7 +8,7 @@
 import('Library.Core.Model.ARModel');
 import('Model.entity.User');
 
-Class Hotel extends ARModel {
+class Hotel extends ARModel {
     protected $_tableName = 'hotel';
 
     //模型字段的主键, 默认为id
@@ -27,10 +27,10 @@ Class Hotel extends ARModel {
 
     protected $_mappers = array(
         'user'=>array(
-            'type'=>'hasOne',
-            'fetch'=>FetchType::LAZY,
-            'target'=>'User',
-            'mapping'=>array(
+            'Type'=>'hasOne',
+            'Fetch'=>FetchType::LAZY,
+            'Target'=>'User',
+            'Mapping'=>array(
                 'userId'=>'id'
             )
         )
