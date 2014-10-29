@@ -1,6 +1,6 @@
 <?php
 /**
- * 
+ *
  * @author: wallace wallaceleung@163.com
  * @date: 14-10-18
  */
@@ -36,5 +36,9 @@ include LIBRARY_PATH.'Core/function.php';
 C(tp_include(CONFIG_PATH.'baseConfig.php'));
 tp_include(LIBRARY_PATH.'Core/Router.class.php');
 
+//设置默认时区
+date_default_timezone_set(C('time_zone'));
+
+//路由解析
 $router = Router::getInstance();
 $router->dispatch();

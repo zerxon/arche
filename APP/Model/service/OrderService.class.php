@@ -26,15 +26,14 @@ class OrderService {
 
     public function getOrdersByPage($pageIndex, $pageSize, $params = null, $order = null) {
 
-        $orm = $this->_orderORM->selectAll()
-                                ->fetch('room', 'hotel', 'user');
+        $orm = $this->_orderORM->selectAll()->fetch('room', 'room.hotel', 'user');
 
         if(is_array($params) && count($params) > 0)
             $orm = $orm->where($params);
 
-        $roomsPage = $orm->orderBy($order)
+        $ordersPage = $orm->orderBy($order)
             ->queryPage($pageIndex, $pageSize);
 
-        return $roomsPage;
+        return $ordersPage;
     }
 }

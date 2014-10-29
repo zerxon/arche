@@ -25,5 +25,6 @@ return array(
         'suffix'=>'.html'
     ),
     'api_format'=>'json', /* string | json | xml */
-    'filter_enable'=>true
+    'filter_enable'=>true,
+    'time_zone'=>'PRC'
 );

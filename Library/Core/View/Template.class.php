@@ -7,24 +7,23 @@ class Template {
 
     public function compile($tplName, $tplPath, $cachePath, $cacheEnable, $cacheExpiry) {
         $cacheFile = $cachePath.$tplName;
-        if(file_exists($cacheFile)) {
 
-            //如果关闭了缓存，且现在时间与修改时间之差大于缓存过期时间，则重新渲染模板文件
-            if(!$cacheEnable || (time() - filemtime($cacheFile) > $cacheExpiry)) {
-                $tplFile = $tplPath.$tplName;
-                $template = file_get_contents($tplFile);
-                $template = $this->_parse($template);
+        //如果文件不存在，或关闭了缓存，或现在时间与修改时间之差大于缓存过期时间，则重新渲染模板文件
+        if(!file_exists($cacheFile) || !$cacheEnable || (time() - filemtime($cacheFile) > $cacheExpiry)) {
+            $tplFile = $tplPath.$tplName;
+            $template = file_get_contents($tplFile);
+            $template = $this->_parse($template);
 
-                makeDirectory(dirname($cacheFile));
-                isWriteFile($cacheFile, $template, $mod = 'w', true);
-            }
+            makeDirectory(dirname($cacheFile));
+            isWriteFile($cacheFile, $template, $mod = 'w', true);
         }
 
         return $cacheFile;
     }
 
     private function _importTemplate($tplPath) {
-        $path = VIEW_PATH.$tplPath.C('tpl');
+        $viewConfig = C('view');
+        $path = VIEW_PATH.$tplPath.$viewConfig['suffix'];
 
         ob_start();
         include_once $path;

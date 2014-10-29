@@ -87,34 +87,28 @@ class ModelReflection {
         }
     }
 
-    public function setMappersActive($key, $parentMapperKey = null) {
+    public function setMappersActive(&$key, $parentMapperKey = null) {
         $mappers = $this->getMappers();
 
-        if(is_array($key)) {
+        if(is_array($key) && count($key) > 0) {
             foreach($key as $index=>$mapperName) {
                 if(isset($mappers[$mapperName])) {
                     $mappers[$mapperName]['Fetch'] = FetchType::EAGER;
-                    //unset($key[$index]);
+                    unset($key[$index]);
                 }
                 elseif(strstr($mapperName, '.') || $parentMapperKey != null) {
                     if($parentMapperKey != null) {
                         //debug($this->_className." ".$parentMapperKey." ".$mapperName, false);
                         $mapperName = str_replace($parentMapperKey.'.', '', $mapperName);
-                        if(isset($mappers[$mapperName]))
+                        if(isset($mappers[$mapperName])) {
                             $mappers[$mapperName]['Fetch'] = FetchType::EAGER;
+                            unset($key[$index]);
+                        }
                     }
                 }
                 else{
                     error("Model ".$this->_class->getName()."'s mapper '$mapperName' does not exist");
                 }
-            }
-        }
-        else {
-            if(isset($mappers[$key])) {
-                $mappers[$key]['Fetch'] = FetchType::EAGER;
-            }
-            else {
-                error("Model mapper '$key' does not exist");
             }
         }
 

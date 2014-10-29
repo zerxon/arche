@@ -9,6 +9,7 @@ import('Library.Core.Model.ARModel');
 import('Model.entity.Room');
 import('Model.entity.Hotel');
 import('Model.entity.User');
+import('Model.entity.Schedule');
 
 class Order extends ARModel {
 
@@ -17,7 +18,6 @@ class Order extends ARModel {
     protected $_fields = array(
         'id'=>'id',
         'roomId'=>'room_id',
-        'hotelId'=>'hotel_id',
         'userId'=>'user_id',
         'code'=>'code',
         'comment'=>'comment',
@@ -34,14 +34,6 @@ class Order extends ARModel {
                 'roomId'=>'id'
             ),
         ),
-        'hotel'=>array(
-            'Type'=>'hasOne',
-            'Fetch'=>FetchType::LAZY,
-            'Target'=>'Hotel',
-            'Mapping'=>array(
-                'hotelId'=>'id'
-            ),
-        ),
         'user'=>array(
             'Type'=>'hasOne',
             'Fetch'=>FetchType::LAZY,
@@ -49,6 +41,14 @@ class Order extends ARModel {
             'Mapping'=>array(
                 'UserId'=>'id'
             ),
+        ),
+        'schedules'=>array(
+            'Type'=>'hasMany',
+            'Fetch'=>FetchType::LAZY,
+            'Target'=>'Schedule',
+            'Mapping'=>array(
+                'id'=>'orderId'
+            )
         )
     );
 

@@ -9,11 +9,8 @@
 class IndexController extends Controller {
 
     public function index() {
-        echo "Index page";
+
+        $this->_display('index/index');
     }
 
-    public function newAction() {
-        //echo 'Index page new action';
-        $this->_display('index/newAction');
-    }
 }

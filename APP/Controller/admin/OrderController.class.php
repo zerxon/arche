@@ -17,7 +17,8 @@ class OrderController extends Controller {
     public function all() {
         $ordersPage = $this->_orderService->getOrdersByPage(1, 10);
 
-        debug($ordersPage);
+        $this->_assign('page', $ordersPage);
+        $this->_display('admin/order_all');
     }
 
 }
