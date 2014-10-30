@@ -13,7 +13,9 @@ define('APP_PATH', 'APP/');
 //APP Constant
 define('SITE_URL', 'http://127.0.0.1/arche/web.php/');
 define('SESSION_ADMIN', 'session_admin');
-define('SESSION_MERCHANT', 'session_merchant');
 define('SESSION_USER', 'session_user');
+
+define('TIPS', 'tips');
+define('TIPS_TYPE', 'tips_type');
 
 require_once 'Library/Core/runtime.php';

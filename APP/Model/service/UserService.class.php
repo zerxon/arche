@@ -44,6 +44,17 @@ class UserService {
         return $user->toArray();
     }
 
+    public function getOneByTel($tel) {
+        $params = array(
+            'tel' => $tel
+        );
+
+        $user = new User();
+        $user->findOne($params);
+
+        return $user->toArray();
+    }
+
     public function save($user) {
         return $user->save();
     }
@@ -78,4 +89,26 @@ class UserService {
 
         return $status;
     }
+
+    public function userSignIn($tel, $password) {
+        $status = false;
+
+        $user = new User();
+        $user->findOne(array(
+            'tel'=>$tel,
+            'password'=>$password
+        ));
+
+        if(!$user->isEmpty()) {
+            $status = true;
+            $_SESSION[SESSION_USER] = $user->toArray();
+        }
+
+        return $status;
+    }
+
+    public function validate($user) {
+
+    }
+
 }

@@ -135,3 +135,14 @@ function error($str) {
         header('HTTP/1.1 404 Not Found');
     }
 }
+
+function oneTimeSession($key) {
+    $session = null;
+
+    if(isset($_SESSION[$key])) {
+        $session = $_SESSION[$key];
+        unset($_SESSION[$key]);
+    }
+
+    return $session;
+}

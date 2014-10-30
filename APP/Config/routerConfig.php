@@ -41,7 +41,6 @@
  */
 
 return array(
-    '/' => 'index/Index',
     '/test' =>  'test/Test',
     '/hotel' => array(
         'Controller' => 'hotel/Hotel',
@@ -52,6 +51,8 @@ return array(
             '/detail\.html'=>'detail'
         )
     ),
+    '/account'=>'account/Account',
+    '/' => 'index/Index',
     '/admin/order'=>'admin/Order',
     '/admin/room' => 'admin/Room',
     '/admin/user' => 'admin/User',
