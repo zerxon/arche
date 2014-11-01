@@ -27,38 +27,9 @@ class AccountController extends Controller {
         $rePassword = trim($_POST['re_password']);
         $name = trim($_POST['name']);
 
-        $status = true;
-
-        if(!preg_match('/^\d{11}$/', $tel))
-            $status = false;
-        else if($this->_userService->getOneByTel($tel))
-            $status = false;
-
-        if(mb_strlen($password, 'utf-8') < 6 || strlen($password, 'utf-8') > 16)
-            $status = false;
-
-        if($password != $rePassword)
-            $status = false;
-
-        if(mb_strlen($name, 'utf-8') < 3 || mb_strlen($name, 'utf-8') > 10)
-            $status = false;
+        $status = $this->_userService->userSignUp($tel, $password, $rePassword, $name);
 
         if($status) {
-            $user = new User();
-            $user->tel($tel);
-            $user->name($name);
-            $user->password($password);
-            $user->addTime(time());
-
-            $userId = $this->_userService->save($user);
-            if($userId>0) {
-                $user->id($userId);
-                $status = true;
-            }
-        }
-
-        if($status) {
-            $_SESSION[SESSION_USER] = $user->toArray();
             $this->_redirect(SITE_URL.'account');
         }
         else {
@@ -93,6 +64,64 @@ class AccountController extends Controller {
         unset($_SESSION[SESSION_USER]);
 
         $this->_redirect(SITE_URL);
+    }
+
+    public function changeProfile() {
+        $userId = intval($_SESSION[SESSION_USER]['id']);
+        $user = $this->_userService->getOneById($userId);
+
+        $this->_assign('user', $user);
+
+        $this->_display('account/change_profile');
+    }
+
+    public function changePassword() {
+        $this->_display('account/change_password');
+    }
+
+    public function doChangeProfile() {
+        $name = trim($_POST['name']);
+        $fullName = trim($_POST['full_name']);
+        $otherTel = trim($_POST['other_tel']);
+
+        $user = new User();
+        $user->id($_SESSION[SESSION_USER]['id']);
+        $user->name($name);
+        $user->fullName($fullName);
+        $user->otherTel($otherTel);
+
+        $status = $this->_userService->changeProfile($user);
+
+        if($status) {
+            $_SESSION[TIPS_TYPE] = TipsType::SUCCESS;
+            $_SESSION[TIPS] = '修改成功';
+        }
+        else {
+            $_SESSION[TIPS_TYPE] = TipsType::ERROR;
+            $_SESSION[TIPS] = '修改失败';
+        }
+
+        $this->_redirect(SITE_URL.'account/changeProfile');
+    }
+
+    public function doChangePassword() {
+        $oldPwd = trim($_POST['oldPwd']);
+        $newPwd = trim($_POST['newPwd']);
+        $rePwd = trim($_POST['rePwd']);
+
+        $userId = intval($_SESSION[SESSION_USER]['id']);
+        $status = $this->_userService->changePassword($userId, $oldPwd, $newPwd, $rePwd);
+
+        if($status) {
+            $_SESSION[TIPS_TYPE] = TipsType::SUCCESS;
+            $_SESSION[TIPS] = '修改成功';
+        }
+        else {
+            $_SESSION[TIPS_TYPE] = TipsType::ERROR;
+            $_SESSION[TIPS] = '修改失败';
+        }
+
+        $this->_redirect(SITE_URL.'account/changePassword');
     }
 
     public function checkExist() {

@@ -51,6 +51,7 @@ return array(
             '/detail\.html'=>'detail'
         )
     ),
+    '/account/merchant'=>'account/Merchant',
     '/account'=>'account/Account',
     '/' => 'index/Index',
     '/admin/order'=>'admin/Order',

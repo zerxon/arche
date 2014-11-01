@@ -6,6 +6,7 @@
  */
 
 import('Model.entity.Room');
+import('Model.entity.Hotel');
 
 class RoomService {
     private $_roomORM;
@@ -42,6 +43,112 @@ class RoomService {
         $room->findOne($id);
 
         return $room->toArray();
+    }
+
+    public function doAdd($name, $price, $otherPrice, $amount, $desc, $userId) {
+        $status = true;
+
+        $name = trim($name);
+        $price = floatval($price);
+        $otherPrice = floatval($otherPrice);
+        $amount = intval($amount);
+        $desc = trim($desc);
+
+        $userId = intval($userId);
+
+        if($userId == 0)
+            $status = false;
+        if(!$name || mb_strlen($name, 'utf-8') < 2)
+            $status = false;
+        else if($amount < 1)
+            $status = false;
+        else if($price <= 0)
+            $status = false;
+
+        if($status) {
+            $hotel = new Hotel();
+            $hotel->findOne(array(
+                'userId' => $userId
+            ));
+
+            if(!$hotel->isEmpty()) {
+                $hotelId = $hotel->id();
+            }
+            else {
+                $status = false;
+            }
+        }
+
+        if($status) {
+            $room = new Room();
+            $room->name($name);
+            $room->hotelId($hotelId);
+            $room->price($price);
+            $room->otherPrice($otherPrice);
+            $room->desc($desc);
+            $room->amount($amount);
+            $room->stock($amount);
+
+            $status = $room->save() > 0;
+        }
+
+        return $status;
+    }
+
+    public function doEdit($roomId ,$name, $price, $otherPrice, $amount, $desc, $userId) {
+        $status = true;
+
+        $roomId = intval($roomId);
+        $name = trim($name);
+        $price = floatval($price);
+        $otherPrice = floatval($otherPrice);
+        $amount = intval($amount);
+        $desc = trim($desc);
+
+        $userId = intval($userId);
+
+        if($roomId == 0 || $userId == 0)
+            $status = false;
+        else if(!$name || mb_strlen($name, 'utf-8') < 2)
+            $status = false;
+        else if($amount < 1)
+            $status = false;
+        else if($price <= 0)
+            $status = false;
+
+        if($status) {
+            $room = $this->_roomORM->selectAll()
+                ->fetch('hotel')
+                ->where()->field('id')->eq($roomId)
+                ->queryOne(true);
+
+            if($room && $room->hotel()->userId() == $userId) {
+                $room->name($name);
+                $room->price($price);
+                $room->otherPrice($otherPrice);
+                $room->desc($desc);
+
+                if($room->amount() != $amount) {
+                    $count = $amount- $room->amount();
+                    $stock = $room->stock() + $count;
+
+                    if($stock >= 0) {
+                        $room->amount($amount);
+                        $room->stock($stock);
+
+                    }
+                    else
+                        return -1;
+                }
+
+                $status = $room->save();
+            }
+            else {
+                $status = false;
+            }
+        }
+
+        return $status;
     }
 
     public function save($room) {

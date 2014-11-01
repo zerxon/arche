@@ -21,10 +21,10 @@ return array(
         'Type' => FilterType::EXCEPT,
         'Option' => array(
             '^/admin/signIn',
-            '^/admin/doSignIn',
-            '^/admin/signOut'
+            '^/admin/doSignIn'
         )
     ),
+
     'AdminSignedInFilter' => array(
         'Enable' => true,
         'Path' => '^/admin',
@@ -33,5 +33,25 @@ return array(
             '^/admin/signIn',
             '^/admin/doSignIn'
         )
-    )
+    ),
+
+    'UserPermissionFilter' => array(
+        'Enable' => true,
+        'Path' => '^/account',
+        'Type' => FilterType::EXCEPT,
+        'Option' => array(
+            '^/account/doSignIn',
+            '^/account/doSignUp'
+        )
+    ),
+
+    'UserSignedInFilter' => array(
+        'Enable' => true,
+        'Path' => '^/account',
+        'Type' => FilterType::CONTAIN,
+        'Option' => array(
+            '^/account/doSignIn',
+            '^/account/doSignUp'
+        )
+    ),
 );

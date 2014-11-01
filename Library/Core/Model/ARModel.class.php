@@ -89,6 +89,9 @@ abstract class ARModel extends Model {
             $value = intval($key);
             $strCondition = "$pKey='$value'";
         }
+        else {
+            error('Invalid params');
+        }
 
         $sql = "SELECT * FROM ".$this->getTableName()." WHERE $strCondition";
         $record = $this->_driver->once_fetch_assoc($sql);

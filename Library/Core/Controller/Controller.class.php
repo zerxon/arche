@@ -10,26 +10,26 @@ import('Library.Core.Controller.IController');
 import('Library.Core.View.View');
 
 abstract class Controller implements IController {
-    private $view;
+    private $_view;
 
-    protected $module;
-    protected $action;
+    protected $_module;
+    protected $_action;
 
     private function _initViewInstance() {
-        if($this->view == null)
-            $this->view = new View();
+        if($this->_view == null)
+            $this->_view = new View();
     }
 
     protected function _assign($key, $value) {
         $this->_initViewInstance();
 
-        $this->view->assign($key, $value);
+        $this->_view->assign($key, $value);
     }
 
     protected function _display($path) {
         $this->_initViewInstance();
 
-        $this->view->display($path);
+        $this->_view->display($path);
     }
 
     protected function _output($data, $type = null) {
@@ -64,11 +64,13 @@ abstract class Controller implements IController {
     }
 
     public function setModule($module) {
-        $this->module = $module;
+        $this->_module = $module;
+        define('MODULE', $module);
     }
 
     public function setAction($action) {
-        $this->action = $action;
+        $this->_action = $action;
+        define('ACTION', $action);
     }
 
     //public abstract function index();

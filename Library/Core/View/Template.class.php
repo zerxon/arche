@@ -7,10 +7,11 @@ class Template {
 
     public function compile($tplName, $tplPath, $cachePath, $cacheEnable, $cacheExpiry) {
         $cacheFile = $cachePath.$tplName;
+        $tplFile = $tplPath.$tplName;
 
         //如果文件不存在，或关闭了缓存，或现在时间与修改时间之差大于缓存过期时间，则重新渲染模板文件
         if(!file_exists($cacheFile) || !$cacheEnable || (time() - filemtime($cacheFile) > $cacheExpiry)) {
-            $tplFile = $tplPath.$tplName;
+        //if(!file_exists($cacheFile) || filemtime($cacheFile) < filemtime($tplFile)) {
             $template = file_get_contents($tplFile);
             $template = $this->_parse($template);
 

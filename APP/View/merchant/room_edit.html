@@ -1,0 +1,206 @@
+{importTemplate('public/header')}
+
+<div class="container">
+    <div class="row-fluid">
+        {importTemplate('account/sidebar')}
+        <div class="span9">
+            <div class="content room-content">
+                <div class="room-add box">
+                    <a href="javascript:viod(0);" class="btn btn-primary" id="add-room">添加房间</a>
+                </div>
+
+                <div style="display: none; background-color: #fcf8e3;" class="room-item box" id="new-room">
+                    <div class="item-header">
+                        <h5 style="color: green">添加房间</h5>
+                    </div>
+                    <div>
+                        <form class="form-horizontal" name="roomEdit{$room[id]}" method="POST" action="{SITE_URL}account/merchant/doRoomAdd">
+                            <div class="control-group">
+                                <label class="control-label"><span class="require">*</span>名称</label>
+                                <div class="controls">
+                                    <input type="text" name="name" value="{$room['name']}">
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label"><span class="require">*</span>平日价格</label>
+                                <div class="controls">
+                                    <input type="text" name="price" value="{$room['price']}">
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label">节假日价格</label>
+                                <div class="controls">
+                                    <input type="text" name="other_price" value="{$room['otherPrice']}">
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label"><span class="require">*</span>房间数量</label>
+                                <div class="controls">
+                                    <input type="text" name="amount" value="{$room['amount']}">
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label">描述</label>
+                                <div class="controls">
+                                    <textarea name="desc" class="span11" rows="3">{$room['desc']}</textarea>
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <div class="controls">
+                                    <input type="hidden" name="room_id" value="{$room['id']}">
+                                    <button type="submit" class="btn btn-success">添 加</button>&nbsp;&nbsp;
+                                    <button type="button" class="btn" id="cancel">取 消</button>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
+                {loop $rooms $room}
+                <div class="room-item box">
+                    <div class="item-header">
+                        <h5>{$room['name']}</h5>
+                    </div>
+                    <div>
+                        <form class="form-horizontal" name="roomEdit{$room[id]}" method="POST" action="{SITE_URL}account/merchant/doRoomEdit">
+                            <div class="control-group">
+                                <label class="control-label"><span class="require">*</span>名称</label>
+                                <div class="controls">
+                                    <input type="text" name="name" value="{$room['name']}">
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label"><span class="require">*</span>平日价格</label>
+                                <div class="controls">
+                                    <input type="text" name="price" value="{$room['price']}">
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label">节假日价格</label>
+                                <div class="controls">
+                                    <input type="text" name="other_price" value="{$room['otherPrice']}">
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label"><span class="require">*</span>房间数量</label>
+                                <div class="controls">
+                                    <input type="text" name="amount" value="{$room['amount']}">
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label">房间剩余数量</label>
+                                <div class="controls">
+                                    <input type="text" value="{$room['stock']}" readonly="readonly">
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <label class="control-label">描述</label>
+                                <div class="controls">
+                                    <textarea name="desc" class="span11" rows="3">{$room['desc']}</textarea>
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <div class="controls">
+                                    <input type="hidden" name="room_id" value="{$room['id']}">
+                                    <button type="submit" class="btn btn-success">修 改</button>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+                {/loop}
+            </div>
+        </div><!--/span-->
+    </div><!--/row-->
+
+</div><!--/.fluid-container-->
+
+{importTemplate('public/footer')}
+
+<script type="text/javascript">
+    $(function(){
+        jQuery.validator.addMethod("price", function(value, element) {
+            var status = !isNaN(value) && value > 0;
+            return this.optional(element) || status;
+        }, "必须是大于0的正数");
+
+        jQuery.validator.addMethod("amount", function(value, element) {
+            var amount = /^[1-9]\d*$/;
+            return this.optional(element) || amount.test(value);
+        }, "必须是大于0的正整数");
+
+        $('#add-room').click(function(){
+            $('#new-room').slideDown();
+            $(this).parent().slideUp();
+        });
+
+        $('#cancel').click(function(){
+            $('#new-room').slideUp();
+            $('#add-room').parent().slideDown();
+        });
+    });
+</script>
+
+
+{loop $rooms $room}
+<script type="text/javascript">
+    $(function(){
+        jQuery.validator.addMethod("price", function(value, element) {
+            var status = !isNaN(value) && value > 0;
+            return this.optional(element) || status;
+        }, "必须是大于0的正数");
+
+        jQuery.validator.addMethod("amount", function(value, element) {
+            var amount = /^[1-9]\d*$/;
+            return this.optional(element) || amount.test(value);
+        }, "必须是大于0的正整数");
+
+        $('form[name="roomEdit{$room[id]}"]').validate({
+            errorElement:'span',
+            success: function(label){
+                label.addClass('success');
+            },
+            rules: {
+                name: {
+                    required: true,
+                    rangelength: [2,10]
+                },
+                price: {
+                    required: true,
+                    price:true
+                },
+                amount: {
+                    required: true,
+                    amount:true
+                }
+            },
+            messages: {
+                name: {
+                    required: '不能为空',
+                    rangelength: '2-10个字符'
+                },
+                price: {
+                    required: '不能为空'
+                },
+                amount: {
+                    required: '不能为空'
+                }
+            }
+        });
+    });
+</script>
+{/loop}
+

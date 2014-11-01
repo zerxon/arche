@@ -17,10 +17,13 @@ class Hotel extends ARModel {
     protected $_fields = array(
         'id'=>'id',
         'name'=>'name',
+        'logo'=>'logo',
         'tel'=>'tel',
+        'otherTel'=>'other_tel',
         'address'=>'address',
         'isOpening'=>'is_opening',
         'status'=>'status',
+        'desc'=>'desc',
         'addTime'=>'add_time',
         'userId'=>'user_id'
     );
@@ -32,6 +35,14 @@ class Hotel extends ARModel {
             'Target'=>'User',
             'Mapping'=>array(
                 'userId'=>'id'
+            )
+        ),
+        'rooms'=>array(
+            'Type'=>'hasMany',
+            'Fetch'=>FetchType::LAZY,
+            'Target'=>'Room',
+            'Mapping'=>array(
+                'id'=>'hotelId'
             )
         )
     );

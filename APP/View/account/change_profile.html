@@ -1,0 +1,44 @@
+{importTemplate('public/header')}
+
+<div class="container">
+    <div class="row-fluid">
+        {importTemplate('account/sidebar')}
+        <div class="span9">
+            <div class="content box account-content">
+                <form class="form-horizontal" name="changeProfile" method="POST" action="{SITE_URL}account/doChangeProfile">
+                    <div class="control-group">
+                        <label class="control-label" for="inputTel">手机</label>
+                        <div class="controls">
+                            <input type="text" id="inputTel" value="{$user['tel']}" readonly="readonly">
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="inputName"><span class="require">*</span>昵称</label>
+                        <div class="controls">
+                            <input type="text" id="inputName" name="name" value="{$user['name']}">
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="inputFullName">真实姓名</label>
+                        <div class="controls">
+                            <input type="text" id="inputFullName" name="full_name" value="{$user['fullName']}">
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="inputOtherTel">其他电话</label>
+                        <div class="controls">
+                            <input type="text" id="inputOtherTel" name="other_tel" value="{$user['otherTel']}">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success">修 改</button>
+                    </div>
+                </form>
+            </div>
+        </div><!--/span-->
+    </div><!--/row-->
+
+</div><!--/.fluid-container-->
+
+{importTemplate('public/footer')}

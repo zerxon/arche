@@ -17,6 +17,7 @@ class Room extends ARModel {
         'hotelId' => 'hotel_id',
         'name' => 'name',
         'price' => 'price',
+        'otherPrice'=>'other_price',
         'amount' => 'amount',
         'stock' => 'stock',
         'desc' => 'desc'

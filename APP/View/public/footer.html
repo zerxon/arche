@@ -45,28 +45,28 @@
         <div class="modal-body">
             <div class="row-fluid">
                 <div class="control-group">
-                    <label class="control-label">手&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;机</label>
+                    <label class="control-label"><span class="require">*</span>手&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;机</label>
                     <div class="controls">
                         <input type="text" id="tel" name="tel">
                     </div>
                 </div>
 
                 <div class="control-group">
-                    <label class="control-label">昵&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;称</label>
+                    <label class="control-label"><span class="require">*</span>昵&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;称</label>
                     <div class="controls">
                         <input type="text" name="name">
                     </div>
                 </div>
 
                 <div class="control-group">
-                    <label class="control-label">密&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;码</label>
+                    <label class="control-label"><span class="require">*</span>密&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;码</label>
                     <div class="controls">
                         <input type="password" id="password" name="password">
                     </div>
                 </div>
 
                 <div class="control-group">
-                    <label class="control-label">确认密码</label>
+                    <label class="control-label"><span class="require">*</span>确认密码</label>
                     <div class="controls">
                         <input type="password" name="re_password">
                     </div>
@@ -94,6 +94,11 @@
 
 <script type="text/javascript" src="{PUBLIC_URL}js/jquery.validate.min.js"></script>
 <script type="text/javascript" src="{PUBLIC_URL}js/validate.js"></script>
+{if MODULE == 'account/Account'}
+<script type="text/javascript" src="{PUBLIC_URL}js/account-validate.js"></script>
+{elseif MODULE == 'account/Merchant'}
+<script type="text/javascript" src="{PUBLIC_URL}js/merchant-validate.js"></script>
+{/if}
 
 <script type="text/javascript">
 

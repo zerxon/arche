@@ -7,7 +7,7 @@
 
 error_reporting(E_ERROR);
 
-define('ROOT_PATH', dirname(__FILE__));
+define('ROOT_PATH', dirname(__FILE__).'/');
 define('APP_PATH', 'APP/');
 
 //APP Constant

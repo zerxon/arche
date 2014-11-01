@@ -33,6 +33,26 @@ class HotelService {
         return $hotelsPage;
     }
 
+    public function getOneByParams($params) {
+        $hotel = new Hotel();
+        $hotel->findOne($params);
+
+        return $hotel;
+    }
+
+    public function getOneByUserId($userId) {
+        $userId = intval($userId);
+        $hotel = array();
+        if($userId)
+            $hotel = $this->_hotelORM->selectAll()
+                ->fetch('rooms')
+                ->where()->field('userId')->eq($userId)
+                ->queryOne();
+
+
+        return $hotel;
+    }
+
     public function getOneById($id) {
         $hotel = new Hotel();
         $hotel->findOne($id);
@@ -42,6 +62,27 @@ class HotelService {
 
     public function save($hotel) {
         return $hotel->save();
+    }
+
+    public function doEdit($hotel) {
+        $name = trim($hotel->name());
+        $tel = trim($hotel->tel());
+        $address = trim($hotel->address());
+
+        $status = true;
+
+        if(!$name)
+            $status = false;
+        else if(!$tel)
+            $status = false;
+        else if(!$address)
+            $status = false;
+
+        if($status) {
+            $hotel->save();
+        }
+
+        return $status;
     }
 
     public function delete($id) {
