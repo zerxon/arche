@@ -1,0 +1,27 @@
+{importTemplate('public/header')}
+
+<div class="container">
+    <div class="row-fluid">
+        <div class="span9 merchant-enter">
+           {importTemplate('merchant/nav')}
+
+            <div class="content box explain">
+                <h3>申请为商家说明:</h3>
+                <p>
+                    如果你是旅馆商家，并想在此注册在线平台，只需简单的几个步骤，步骤如下：
+                </p>
+
+                <p>1. 添加您的旅馆信息，包括旅馆名称，联系电话，地址等重要信息</p>
+                <p>2. 添加您的旅馆所有的房间类别，包括房间名称，价格，房间总数量等重要信息</p>
+                <p>2. 完成步骤1和2后，您所填写的信息将会提交到我们的网站，管理员将会尽快审核您提交的资料</p>
+
+            </div>
+            <div class="content box next-step">
+                <a href="{SITE_URL}account/merchant/step1" class="btn btn-success">下 一 步</a>
+            </div>
+        </div><!--/span-->
+    </div><!--/row-->
+
+</div><!--/.fluid-container-->
+
+{importTemplate('public/footer')}

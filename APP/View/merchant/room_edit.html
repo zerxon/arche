@@ -1,134 +1,125 @@
-{importTemplate('public/header')}
+<div class="room-content">
+    <div class="room-add box" {if !$rooms}style="display: none"{/if}>
+        <a href="javascript:viod(0);" class="btn btn-primary" id="add-room">添加房间</a>
+    </div>
 
-<div class="container">
-    <div class="row-fluid">
-        {importTemplate('account/sidebar')}
-        <div class="span9">
-            <div class="content room-content">
-                <div class="room-add box">
-                    <a href="javascript:viod(0);" class="btn btn-primary" id="add-room">添加房间</a>
-                </div>
-
-                <div style="display: none; background-color: #fcf8e3;" class="room-item box" id="new-room">
-                    <div class="item-header">
-                        <h5 style="color: green">添加房间</h5>
-                    </div>
-                    <div>
-                        <form class="form-horizontal" name="roomEdit{$room[id]}" method="POST" action="{SITE_URL}account/merchant/doRoomAdd">
-                            <div class="control-group">
-                                <label class="control-label"><span class="require">*</span>名称</label>
-                                <div class="controls">
-                                    <input type="text" name="name" value="{$room['name']}">
-                                </div>
-                            </div>
-
-                            <div class="control-group">
-                                <label class="control-label"><span class="require">*</span>平日价格</label>
-                                <div class="controls">
-                                    <input type="text" name="price" value="{$room['price']}">
-                                </div>
-                            </div>
-
-                            <div class="control-group">
-                                <label class="control-label">节假日价格</label>
-                                <div class="controls">
-                                    <input type="text" name="other_price" value="{$room['otherPrice']}">
-                                </div>
-                            </div>
-
-                            <div class="control-group">
-                                <label class="control-label"><span class="require">*</span>房间数量</label>
-                                <div class="controls">
-                                    <input type="text" name="amount" value="{$room['amount']}">
-                                </div>
-                            </div>
-
-                            <div class="control-group">
-                                <label class="control-label">描述</label>
-                                <div class="controls">
-                                    <textarea name="desc" class="span11" rows="3">{$room['desc']}</textarea>
-                                </div>
-                            </div>
-
-                            <div class="control-group">
-                                <div class="controls">
-                                    <input type="hidden" name="room_id" value="{$room['id']}">
-                                    <button type="submit" class="btn btn-success">添 加</button>&nbsp;&nbsp;
-                                    <button type="button" class="btn" id="cancel">取 消</button>
-                                </div>
-                            </div>
-
-                        </form>
+    <div {if $rooms}style="display: none; background-color: #fcf8e3;"{else}style="background-color: #fcf8e3;"{/if} class="room-item box" id="new-room">
+        <div class="item-header">
+            <h5 style="color: green">添加房间</h5>
+        </div>
+        <div>
+            <form class="form-horizontal" name="roomEdit{$room[id]}" method="POST" action="{SITE_URL}account/merchant/{if $type == 'step2'}doStep2{else}doRoomAdd{/if}">
+                <div class="control-group">
+                    <label class="control-label"><span class="require">*</span>名称</label>
+                    <div class="controls">
+                        <input type="text" name="name" value="{$room['name']}">
                     </div>
                 </div>
 
-                {loop $rooms $room}
-                <div class="room-item box">
-                    <div class="item-header">
-                        <h5>{$room['name']}</h5>
-                    </div>
-                    <div>
-                        <form class="form-horizontal" name="roomEdit{$room[id]}" method="POST" action="{SITE_URL}account/merchant/doRoomEdit">
-                            <div class="control-group">
-                                <label class="control-label"><span class="require">*</span>名称</label>
-                                <div class="controls">
-                                    <input type="text" name="name" value="{$room['name']}">
-                                </div>
-                            </div>
-
-                            <div class="control-group">
-                                <label class="control-label"><span class="require">*</span>平日价格</label>
-                                <div class="controls">
-                                    <input type="text" name="price" value="{$room['price']}">
-                                </div>
-                            </div>
-
-                            <div class="control-group">
-                                <label class="control-label">节假日价格</label>
-                                <div class="controls">
-                                    <input type="text" name="other_price" value="{$room['otherPrice']}">
-                                </div>
-                            </div>
-
-                            <div class="control-group">
-                                <label class="control-label"><span class="require">*</span>房间数量</label>
-                                <div class="controls">
-                                    <input type="text" name="amount" value="{$room['amount']}">
-                                </div>
-                            </div>
-
-                            <div class="control-group">
-                                <label class="control-label">房间剩余数量</label>
-                                <div class="controls">
-                                    <input type="text" value="{$room['stock']}" readonly="readonly">
-                                </div>
-                            </div>
-
-                            <div class="control-group">
-                                <label class="control-label">描述</label>
-                                <div class="controls">
-                                    <textarea name="desc" class="span11" rows="3">{$room['desc']}</textarea>
-                                </div>
-                            </div>
-
-                            <div class="control-group">
-                                <div class="controls">
-                                    <input type="hidden" name="room_id" value="{$room['id']}">
-                                    <button type="submit" class="btn btn-success">修 改</button>
-                                </div>
-                            </div>
-
-                        </form>
+                <div class="control-group">
+                    <label class="control-label"><span class="require">*</span>平日价格</label>
+                    <div class="controls">
+                        <input type="text" name="price" value="{$room['price']}">
                     </div>
                 </div>
-                {/loop}
-            </div>
-        </div><!--/span-->
-    </div><!--/row-->
 
-</div><!--/.fluid-container-->
+                <div class="control-group">
+                    <label class="control-label">节假日价格</label>
+                    <div class="controls">
+                        <input type="text" name="other_price" value="{$room['otherPrice']}">
+                    </div>
+                </div>
 
-{importTemplate('public/footer')}
+                <div class="control-group">
+                    <label class="control-label"><span class="require">*</span>房间数量</label>
+                    <div class="controls">
+                        <input type="text" name="amount" value="{$room['amount']}">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">描述</label>
+                    <div class="controls">
+                        <textarea name="desc" class="span11" rows="3">{$room['desc']}</textarea>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="controls">
+                        <input type="hidden" name="room_id" value="{$room['id']}">
+                        <button type="submit" class="btn btn-success">添 加</button>&nbsp;&nbsp;
+                        <button type="button" class="btn" id="cancel">取 消</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    {loop $rooms $room}
+    <div class="room-item box">
+        <div class="item-header">
+            <h5>{$room['name']}</h5>
+        </div>
+        <div>
+            <form class="form-horizontal" name="roomEdit{$room[id]}{$room[timeId]}" method="POST" action="{SITE_URL}account/merchant/{if $type == 'step2'}doStep2{else}doRoomEdit{/if}">
+                <div class="control-group">
+                    <label class="control-label"><span class="require">*</span>名称</label>
+                    <div class="controls">
+                        <input type="text" name="name" value="{$room['name']}">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label"><span class="require">*</span>平日价格</label>
+                    <div class="controls">
+                        <input type="text" name="price" value="{$room['price']}">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">节假日价格</label>
+                    <div class="controls">
+                        <input type="text" name="other_price" value="{$room['otherPrice']}">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label"><span class="require">*</span>房间数量</label>
+                    <div class="controls">
+                        <input type="text" name="amount" value="{$room['amount']}">
+                    </div>
+                </div>
+
+                {if $type != 'step2'}
+                <div class="control-group">
+                    <label class="control-label">房间剩余数量</label>
+                    <div class="controls">
+                        <input type="text" value="{$room['stock']}" readonly="readonly">
+                    </div>
+                </div>
+                {/if}
+
+                <div class="control-group">
+                    <label class="control-label">描述</label>
+                    <div class="controls">
+                        <textarea name="desc" class="span11" rows="3">{$room['desc']}</textarea>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="controls">
+                        <input type="hidden" name="room_id" value="{$room['id']}">
+                        <input type="hidden" name="time_id" value="{$room['timeId']}">
+                        <button type="submit" class="btn btn-success">修 改</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+    {/loop}
+</div>
 
 <script type="text/javascript">
     $(function(){
@@ -154,7 +145,6 @@
     });
 </script>
 
-
 {loop $rooms $room}
 <script type="text/javascript">
     $(function(){
@@ -168,7 +158,7 @@
             return this.optional(element) || amount.test(value);
         }, "必须是大于0的正整数");
 
-        $('form[name="roomEdit{$room[id]}"]').validate({
+        $('form[name="roomEdit{$room[id]}{$room[timeId]}"]').validate({
             errorElement:'span',
             success: function(label){
                 label.addClass('success');
@@ -203,4 +193,3 @@
     });
 </script>
 {/loop}
-

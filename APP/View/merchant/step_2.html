@@ -1,0 +1,19 @@
+{importTemplate('public/header')}
+
+<div class="container">
+    <div class="row-fluid">
+        <div class="span9 merchant-enter">
+            {importTemplate('merchant/nav')}
+            {importTemplate('merchant/room_edit')}
+
+            {if $rooms}
+            <div class="content box next-step">
+                <a href="{SITE_URL}account/merchant/step3" class="btn btn-success">下 一 步</a>
+            </div>
+            {/if}
+        </div><!--/span-->
+    </div><!--/row-->
+
+</div><!--/.fluid-container-->
+
+{importTemplate('public/footer')}

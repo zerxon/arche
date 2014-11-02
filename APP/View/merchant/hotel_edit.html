@@ -1,68 +1,56 @@
-{importTemplate('public/header')}
-
-<div class="container">
-    <div class="row-fluid">
-        {importTemplate('account/sidebar')}
-        <div class="span9">
-            <div class="content box account-content">
-                <form class="form-horizontal" name="hotelEdit" method="POST" action="{SITE_URL}account/merchant/doHotelEdit">
-                    <div class="control-group">
-                        <label class="control-label" for="inputName">宾馆LOGO</label>
-                        <div class="controls">
-                            <img id="logo" class="img-preview" src="{BASE_URL}{if $hotel['logo']}{$hotel['logo']}{else}Public/image/house.jpg{/if}" id="image-uploaded">
-                            <div>
-                                <input type="file"  id="file" name="file" />
-                                <div class="upload-tips">(请上传128X128像素的图片)</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="control-group">
-                        <label class="control-label" for="inputName"><span class="require">*</span>宾馆名称</label>
-                        <div class="controls">
-                            <input type="text" id="inputName" name="name" value="{$hotel['name']}">
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label class="control-label" for="inputTel"><span class="require">*</span>联系电话</label>
-                        <div class="controls">
-                            <input type="text" id="inputTel" name="tel" value="{$hotel['tel']}">
-                        </div>
-                    </div>
-
-                    <div class="control-group">
-                        <label class="control-label" for="inputOtherTel">其他电话</label>
-                        <div class="controls">
-                            <input type="text" id="inputOtherTel" name="other_tel" value="{$hotel['otherTel']}">
-                        </div>
-                    </div>
-
-                    <div class="control-group">
-                        <label class="control-label" for="inputAddress"><span class="require">*</span>地址</label>
-                        <div class="controls">
-                            <textarea class="span11" id="inputAddress" name="address">{$hotel['address']}</textarea>
-                        </div>
-                    </div>
-
-                    <div class="control-group">
-                        <label class="control-label" for="inputDesc">描述</label>
-                        <div class="controls">
-                            <textarea rows="8" class="span11" id="inputDesc" name="desc">{$hotel['desc']}</textarea>
-                        </div>
-                    </div>
-
-                    <div class="form-actions">
-                        <input type="hidden" name="hotel_id" value="{$hotel['id']}">
-                        <button type="submit" class="btn btn-success">提 交</button>
-                    </div>
-                </form>
+<div class="account-content box">
+    <form class="form-horizontal" name="hotelEdit" method="POST" action="{SITE_URL}account/merchant/{if ACTION == 'step1'}doStep1{else}doHotelEdit{/if}">
+        <div class="control-group">
+            <label class="control-label" for="inputName">宾馆LOGO</label>
+            <div class="controls">
+                <img id="logo" class="img-preview" src="{BASE_URL}{if $hotel['logo']}{$hotel['logo']}{else}Public/image/house.jpg{/if}" id="image-uploaded">
+                <div>
+                    <input type="file"  id="file" name="file" />
+                    <div class="upload-tips">(请上传128X128像素的图片)</div>
+                </div>
             </div>
-        </div><!--/span-->
-    </div><!--/row-->
+        </div>
 
-</div><!--/.fluid-container-->
+        <div class="control-group">
+            <label class="control-label" for="inputName"><span class="require">*</span>宾馆名称</label>
+            <div class="controls">
+                <input type="text" id="inputName" name="name" value="{$hotel['name']}">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="inputTel"><span class="require">*</span>联系电话</label>
+            <div class="controls">
+                <input type="text" id="inputTel" name="tel" value="{$hotel['tel']}">
+            </div>
+        </div>
 
-{importTemplate('public/footer')}
+        <div class="control-group">
+            <label class="control-label" for="inputOtherTel">其他电话</label>
+            <div class="controls">
+                <input type="text" id="inputOtherTel" name="other_tel" value="{$hotel['otherTel']}">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="inputAddress"><span class="require">*</span>地址</label>
+            <div class="controls">
+                <textarea class="span10" id="inputAddress" name="address">{$hotel['address']}</textarea>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label" for="inputDesc">描述</label>
+            <div class="controls">
+                <textarea rows="8" class="span10" id="inputDesc" name="desc">{$hotel['desc']}</textarea>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <input type="hidden" name="hotel_id" value="{$hotel['id']}">
+            <button type="submit" class="btn btn-success">提 交</button>
+        </div>
+    </form>
+</div>
 
 <link rel="stylesheet" type="text/css" href="{PUBLIC_URL}jquery.imgareaselect-0.9.10/css/imgareaselect-default.css" media="all" >
 <link rel="stylesheet" type="text/css" href="{PUBLIC_URL}uploadify/uploadify.css" media="all" >

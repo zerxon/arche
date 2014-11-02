@@ -54,4 +54,17 @@ return array(
             '^/account/doSignUp'
         )
     ),
+
+    'MerchantEnterFilter' => array(
+        'Enable' => true,
+        'Path' => '^/account/merchant/step',
+        'Type' => FilterType::CONTAIN,
+        'Option' => array(
+            '^/account/merchant/step$',
+            '^/account/merchant/step1',
+            '^/account/merchant/step2',
+            '^/account/merchant/step3'
+        )
+    ),
+
 );

@@ -36,7 +36,7 @@ class MerchantController extends Controller {
 
         $hotel = $this->_hotelService->getOneByParams($params)->toArray();
         $this->_assign('hotel', $hotel);
-        $this->_display('merchant/hotel_edit');
+        $this->_display('merchant/my_hotel');
     }
 
     public function doHotelEdit() {
@@ -136,7 +136,7 @@ class MerchantController extends Controller {
             $this->_assign('rooms', $rooms);
         }
 
-        $this->_display('merchant/room_edit');
+        $this->_display('merchant/hotel_room');
     }
 
     public function doRoomEdit() {
@@ -167,5 +167,209 @@ class MerchantController extends Controller {
         }
 
         $this->_redirect(SITE_URL.'account/merchant/roomEdit');
+    }
+
+    public function step() {
+
+        $this->_display('merchant/step');
+    }
+
+    public function step1() {
+        if($_SESSION['hotel']) {
+            $hotel = unserialize($_SESSION['hotel']);
+
+            $hotel->name(base64_decode($hotel->name()));
+            $hotel->otherTel(base64_decode($hotel->otherTel()));
+            $hotel->address(base64_decode($hotel->address()));
+            $hotel->desc(base64_decode($hotel->desc()));
+
+            $this->_assign('hotel', $hotel->toArray());
+        }
+
+        $this->_display('merchant/step_1');
+    }
+
+    public function doStep1() {
+        $userId = intval($_SESSION[SESSION_USER]['id']);
+
+        $name = trim($_POST['name']);
+        $tel = trim($_POST['tel']);
+        $otherTel = trim($_POST['other_tel']);
+        $address = trim($_POST['address']);
+        $desc = trim($_POST['desc']);
+        $addTime = time();
+
+        $status = true;
+
+        if($userId == 0)
+            $status = false;
+        else if(!$name)
+            $status = false;
+        else if(!$tel)
+            $status = false;
+        else if(!$address)
+            $status = false;
+
+        if($status) {
+            $hotel = new Hotel();
+            $hotel->name(base64_encode($name));
+            $hotel->tel($tel);
+            $hotel->otherTel(base64_encode($otherTel));
+            $hotel->address(base64_encode($address));
+            $hotel->desc(base64_encode($desc));
+            $hotel->addTime($addTime);
+            $hotel->userId($userId);
+
+            //logo
+            if($_SESSION['hotel_logo'])
+                $hotel->logo($_SESSION['hotel_logo']);
+
+            $_SESSION['hotel'] = serialize($hotel);
+
+            $_SESSION[TIPS_TYPE] = TipsType::SUCCESS;
+            $_SESSION[TIPS] = '旅馆信息添加成功，请填写房间信息';
+
+            $this->_redirect(SITE_URL.'account/merchant/step2');
+        }
+        else {
+            $_SESSION[TIPS_TYPE] = TipsType::ERROR;
+            $_SESSION[TIPS] = '您还没正确填写旅馆信息';
+
+            $this->_redirect(SITE_URL.'account/merchant/step1');
+        }
+    }
+
+    public function step2() {
+
+        if(!$_SESSION['hotel']) {
+            $_SESSION[TIPS_TYPE] = TipsType::ERROR;
+            $_SESSION[TIPS] = '您还没正确填写旅馆信息';
+
+            $this->_redirect(SITE_URL.'account/merchant/step1');
+        }
+
+        if(is_array($_SESSION['rooms'])) {
+            $rooms = array();
+            foreach($_SESSION['rooms'] as $item) {
+                $obj = unserialize($item);
+
+                $obj->name(base64_decode($obj->name()));
+                $obj->desc(base64_decode( $obj->desc()));
+
+                $room = $obj->toArray();
+                $room['timeId'] = $obj->timeId();
+
+                array_push($rooms ,$room);
+            }
+            $this->_assign('rooms', $rooms);
+        }
+
+        $this->_assign('type', 'step2');
+        $this->_display('merchant/step_2');
+    }
+
+    public function doStep2() {
+
+        $status = true;
+
+        $userId = intval($_SESSION[SESSION_USER]['id']);
+
+        $name = trim($_POST['name']);
+        $price = floatval($_POST['price']);
+        $otherPrice = intval($_POST['other_price']);
+        $amount = intval($_POST['amount']);
+        $desc = trim($_POST['desc']);
+
+        $timeId = $_POST['time_id'];
+
+        if($userId == 0)
+            $status = false;
+        if(!$name || mb_strlen($name, 'utf-8') < 2)
+            $status = false;
+        else if($amount < 1)
+            $status = false;
+        else if($price <= 0)
+            $status = false;
+
+        if($status) {
+            $room = new Room();
+            $room->name(base64_encode($name));
+            $room->price($price);
+            $room->otherPrice($otherPrice);
+            $room->desc(base64_encode($desc));
+            $room->amount($amount);
+            $room->stock($amount);
+
+            if(!$timeId || !isset($_SESSION['rooms'][$timeId])) {
+                $timeId = time();
+            }
+
+            $room->timeId($timeId);
+            $_SESSION['rooms'][$timeId] = serialize($room);
+        }
+
+        if($status) {
+            $_SESSION[TIPS_TYPE] = TipsType::SUCCESS;
+            $_SESSION[TIPS] = '操作成功，您可以继续添加或者选择下一步';
+        }
+        else {
+            $_SESSION[TIPS_TYPE] = TipsType::ERROR;
+            $_SESSION[TIPS] = '操作失败，提交的房间资料有误';
+        }
+
+        $this->_redirect(SITE_URL.'account/merchant/step2');
+
+    }
+
+    public function step3() {
+        if(!$_SESSION['hotel']) {
+            $_SESSION[TIPS_TYPE] = TipsType::ERROR;
+            $_SESSION[TIPS] = '您还没正确填写旅馆信息';
+
+            $this->_redirect(SITE_URL.'account/merchant/step1');
+        }
+        else if(!is_array($_SESSION['rooms']) || count($_SESSION['rooms']) < 1 ) {
+            $_SESSION[TIPS_TYPE] = TipsType::ERROR;
+            $_SESSION[TIPS] = '您还没正确填写房间信息';
+
+            $this->_redirect(SITE_URL.'account/merchant/step2');
+        }
+        else {
+            $this->_initHotelService();
+            $this->_initRoomService();
+
+            $hotel = unserialize($_SESSION['hotel']);
+            $hotel->name(base64_decode($hotel->name()));
+            $hotel->otherTel(base64_decode($hotel->otherTel()));
+            $hotel->address(base64_decode($hotel->address()));
+            $hotel->desc(base64_decode($hotel->desc()));
+
+            $hotelId = $this->_hotelService->save($hotel);
+
+            if($hotelId > 0) {
+                unset($_SESSION['hotel_logo']);
+
+                foreach($_SESSION['rooms'] as $item) {
+                    $room = unserialize($item);
+                    $room->hotelId($hotelId);
+                    $room->name(base64_decode($room->name()));
+                    $room->desc(base64_decode( $room->desc()));
+
+                    $status = $this->_roomService->save($room);
+
+                    if(!$status)
+                        break;
+                }
+            }
+        }
+
+        if(!$status) {
+            $_SESSION[TIPS_TYPE] = TipsType::ERROR;
+            $_SESSION[TIPS] = '系统出错，有需要请联系我们';
+
+            $this->_redirect(SITE_URL.'account/merchant/step');
+        }
+
+        $this->_display('merchant/step_3');
     }
 }

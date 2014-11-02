@@ -5,6 +5,7 @@ class MysqlDriver {
 	var $queryCount = 0;
 	var $conn;
 	var $result;
+    var $dbConfig;
 
     private static $_instance;
 
@@ -27,19 +28,28 @@ class MysqlDriver {
             error("db config 'name' not set");
         }
 
-        $this->conn = mysqli_connect($dbConfig['host'], $dbConfig['user'], $dbConfig['pwd'],$dbConfig['name'])
-            or die('Mysql database connect failed');
+        $this->dbConfig = $dbConfig;
+        $this->initConn();
 
-		if ($this->getmysqlVersion() >'4.1'){
-			mysqli_query($this->conn,"SET NAMES 'utf8'");
-		}
-	}
+    }
 
     public static function getInstance($dbConfig) {
         if(MysqlDriver::$_instance == null)
             MysqlDriver::$_instance = new self($dbConfig);
 
         return MysqlDriver::$_instance;
+    }
+
+    private function initConn() {
+        $dbConfig = $this->dbConfig;
+        if(!$this->conn->client_info) {
+            $this->conn = mysqli_connect($dbConfig['host'], $dbConfig['user'], $dbConfig['pwd'],$dbConfig['name'])
+            or die('Mysql database connect failed');
+        }
+
+        if ($this->getmysqlVersion() >'4.1'){
+            mysqli_query($this->conn,"SET NAMES 'utf8'");
+        }
     }
 
 	/*
@@ -55,11 +65,12 @@ class MysqlDriver {
 	 */
 	 
 	function query($sql){
+        $this->initConn();
 
 		$this->result = mysqli_query($this->conn, $sql);
 		$this->queryCount++;
-			if (!$this->result){
-			if(C('is_debug') == '1'){
+	    if (!$this->result){
+			if(C('is_debug')){
 				error("SQL querys error: $sql <br />".$this->geterror());
 			}else{
 				error("system error");

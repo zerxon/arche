@@ -22,6 +22,8 @@ class FilterHandler {
     }
 
     public function filter($module, $action) {
+        $status = true;
+
         $pathInfo = $_SERVER['PATH_INFO'];
         $uri = $pathInfo.end(explode($pathInfo, $_SERVER['REQUEST_URI']));
 
@@ -32,7 +34,7 @@ class FilterHandler {
                     if(preg_match("/$path/", $uri)) {
                         $type = $config['Type'];
                         $options = array();
-                        $status = false;
+                        $match = false;
 
                         if(is_array($config['Option']))
                             $options = $config['Option'];
@@ -41,49 +43,51 @@ class FilterHandler {
 
                         //根据类型进行处理
                         if($type == FilterType::ALL) {
-                            $status = true;
+                            $match = true;
                         }
                         elseif($type == FilterType::CONTAIN) {
                             foreach($options as $option) {
                                 $option = str_replace('/', '\/', $option);
                                 if(preg_match("/$option/", $uri)) {
-                                    $status = true;
+                                    $match = true;
                                     break;
                                 }
                             }
                         }
                         elseif($type == FilterType::EXCEPT) {
-                            $status = true;
+                            $match = true;
                             foreach($options as $option) {
                                 $option = str_replace('/', '\/', $option);
                                 if(preg_match("/$option/", $uri)) {
-                                    $status = false;
+                                    $match = false;
                                     break;
                                 }
                             }
                         }
 
                         //如果有匹配，则执行过滤操作
-                        if($status) {
+                        if($match) {
                             import('Filter.'.$filter);
 
                             $context = new FilterContext($module, $action, $_SERVER['REQUEST_URI']);
 
                             $filterInstance = new $filter();
-                            $result =  $filterInstance->doFilter($context);
+                            $status =  $filterInstance->doFilter($context);
 
-                            return $result;
+                            if($status) {
+                                continue;
+                            }
+                            else {
+                                break;
+                            }
                         }
 
                     }
                 }
-                else {
-                    continue;
-                }
             }
         }
 
-        return true;
+        return $status;
     }
 
 }

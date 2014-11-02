@@ -12,6 +12,8 @@ class Room extends ARModel {
 
     protected $_tableName = 'room';
 
+    protected $_timeId;
+
     protected $_fields = array(
         'id' => 'id',
         'hotelId' => 'hotel_id',
