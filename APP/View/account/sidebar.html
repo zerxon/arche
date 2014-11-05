@@ -5,6 +5,8 @@
             <li {if ACTION == 'index'}class="active"{/if}>
                 <a href="{SITE_URL}account">我的中心</a>
             </li>
+
+            {if $_SESSION['session_user']['isMerchant']}
             <li {if ACTION == 'hotelEdit'}class="active"{/if}>
                 <a href="{SITE_URL}account/merchant/hotelEdit">我的旅馆</a>
             </li>
@@ -14,6 +16,7 @@
             <li {if ACTION == 'hotelOrder'}class="active"{/if}>
                 <a href="{SITE_URL}account/hotelOrder">旅馆订单</a>
             </li>
+            {/if}
 
             <li class="nav-header">账户相关</li>
             <li {if ACTION == 'changeProfile'}class="active"{/if}>

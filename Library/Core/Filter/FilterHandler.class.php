@@ -31,7 +31,7 @@ class FilterHandler {
             foreach($this->_filterConfigs as $filter=>$config) {
                 if($config['Enable']) {
                     $path = str_replace('/', '\/', $config['Path']);
-                    if(preg_match("/$path/", $uri)) {
+                    if($path === '*' || preg_match("/$path/", $uri)) {
                         $type = $config['Type'];
                         $options = array();
                         $match = false;

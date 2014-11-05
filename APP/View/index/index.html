@@ -1,13 +1,29 @@
 {importTemplate('public\header')}
 
-<div class="container">
-  <div class="row-fluid">
-    <div class="span12">
-      <div class="content box">
+<link rel="stylesheet" type="text/css" href="{PUBLIC_URL}css/index.css">
 
-      </div>
-    </div><!--/span-->
-  </div><!--/row-->
+<div class="container">
+    <div class="row-fluid">
+            <div class="index-content">
+                {loop $hotels $hotel}
+                <a href="{SITE_URL}hotel/detail/{$hotel['id']}" class="box">
+                    <div class="item">
+                        <div class="logo">
+                            <img src="{BASE_URL}{if $hotel['logo']}$hotel['logo']{else}Public/image/house.jpg{/if}">
+                        </div>
+                        <div class="right-side">
+                            <div class="title">{$hotel['name']}</div>
+                            <div class="contact">联系电话: {$hotel['tel']}</div>
+                            <div class="contact">其他电话: {$hotel['otherTel']}</div>
+                            <div class="address">地址: {$hotel['address']}</div>
+                        </div>
+                    </div>
+                </a>
+                {/loop}
+            </div>
+        <!--/span-->
+    </div>
+    <!--/row-->
 
 </div><!--/.fluid-container-->
 

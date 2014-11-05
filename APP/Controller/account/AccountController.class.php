@@ -43,11 +43,12 @@ class AccountController extends Controller {
     public function doSignIn() {
         $tel = trim($_POST['tel']);
         $password = trim($_POST['password']);
+        $keep = intval($_POST['keep']);
 
         $success = false;
 
         if($tel && $password) {
-            $success = $this->_userService->userSignIn($tel, $password);
+            $success = $this->_userService->userSignIn($tel, $password, $keep);
         }
 
         if($success) {
@@ -61,7 +62,10 @@ class AccountController extends Controller {
     }
 
     public function doSignOut() {
-        unset($_SESSION[SESSION_USER]);
+        //unset($_SESSION[SESSION_USER]);
+
+        session_destroy();
+        setcookie('access_token', '', -1, '/');
 
         $this->_redirect(SITE_URL);
     }

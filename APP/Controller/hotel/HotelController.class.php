@@ -5,24 +5,27 @@
  * @date: 14-10-19
  */
 
+import('Model.service.HotelService');
+
 class HotelController extends Controller {
 
-    public function index() {
-        echo 'hotel index page';
+    private $_hotelService;
+
+    public function __construct() {
+        $this->_hotelService = HotelService::getInstance();
     }
 
     public function detail() {
-        echo 'hotel detail page';
-        echo '<pre>';
-        print_r($_GET);
-    }
+        $hotelId = intval($_GET['id']);
 
-    public function one() {
-        echo 'one';
-    }
+        if($hotelId > 0)
+            $hotel = $this->_hotelService->getOneById($hotelId);
 
-    public function act() {
-        echo 'act';
+        if(!$hotel)
+            error('Invalid hotel id');
+
+        $this->_assign('hotel', $hotel);
+        $this->_display('hotel/detail');
     }
 
 }

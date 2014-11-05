@@ -5,7 +5,7 @@
  * @date: 14-5-27
  */
 
-import('Model.Entity.User');
+import('Model.entity.User');
 
 class UserService {
 
@@ -90,7 +90,7 @@ class UserService {
         return $status;
     }
 
-    public function userSignIn($tel, $password) {
+    public function userSignIn($tel, $password,  $keep = false) {
         $status = false;
 
         $user = new User();
@@ -101,7 +101,18 @@ class UserService {
 
         if(!$user->isEmpty()) {
             $status = true;
-            $_SESSION[SESSION_USER] = $user->toArray();
+
+            $userArr = $user->toArray();
+            $_SESSION[SESSION_USER] = $userArr;
+
+            //1个月内自动登录
+            if(intval($keep)) {
+                $userId = $userArr['id'];
+                $pwd = $userArr['password'];
+
+                $accessToken = $userId.'|'.md5(SALT.$pwd);
+                setcookie('access_token', $accessToken, time() + 2592000, '/');
+            }
         }
 
         return $status;
@@ -190,8 +201,11 @@ class UserService {
         return $status;
     }
 
-    public function validate($user) {
+    public function setMerchant($userId) {
+        $status = $this->_userORM->update()->fieldsWithValues(array('isMerchant'=>1))
+            ->where()->field('id')->eq($userId)
+            ->execute();
 
+        return $status;
     }
-
 }

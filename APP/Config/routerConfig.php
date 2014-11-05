@@ -45,16 +45,13 @@ return array(
     '/hotel' => array(
         'Controller' => 'hotel/Hotel',
         'Pattern' => array(
-            '/' => 'act',
-            '/(\d+)/(\w+)/(\w+)' => 'detail?abc=$1&type=$2&order=$3',
-            '/ect/(\d+)' => 'et',
-            '/detail\.html'=>'detail'
+            '/detail/(\d+)' => 'detail?id=$1'
         )
     ),
     '/account/merchant'=>'account/Merchant',
     '/account'=>'account/Account',
     '/' => 'index/Index',
-    '/admin/order'=>'admin/Order',
+    '/admin/order' => 'admin/Order',
     '/admin/room' => 'admin/Room',
     '/admin/user' => 'admin/User',
     '/admin/hotel' => 'admin/Hotel',

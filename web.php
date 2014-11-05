@@ -18,4 +18,6 @@ define('SESSION_USER', 'session_user');
 define('TIPS', 'tips');
 define('TIPS_TYPE', 'tips_type');
 
+define('SALT', 'pa');
+
 require_once 'Library/Core/runtime.php';

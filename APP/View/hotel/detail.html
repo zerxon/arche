@@ -1,0 +1,42 @@
+{importTemplate('public\header')}
+
+<link rel="stylesheet" type="text/css" href="{PUBLIC_URL}css/detail.css">
+
+<div class="container">
+    <div class="row-fluid">
+
+        <div class="span8 box">
+
+        </div>
+
+        <div class="span4">
+            <div class="content box">
+                <div class="cart">
+                    <div class="logo">
+                        <img src="{BASE_URL}{if $hotel['logo']}$hotel['logo']{else}Public/image/house.jpg{/if}">
+                    </div>
+
+                    <div class="right-side">
+                        <div class="title">{$hotel['name']}</div>
+                        <div class="contact">联系电话: {$hotel['tel']}</div>
+                        <div class="contact">其他电话: {$hotel['otherTel']}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content box block">
+                <div class="header">地址</div>
+                <div>{$hotel['address']}</div>
+            </div>
+
+            <div class="content box block">
+                <div class="header">公告</div>
+                <div>{$hotel['desc']}</div>
+            </div>
+
+        </div>
+    </div>
+
+</div><!--/.fluid-container-->
+
+{importTemplate('public\footer')}

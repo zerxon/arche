@@ -6,6 +6,7 @@
  */
 
 import('Model.service.HotelService');
+import('Model.service.UserService');
 import('Library.Ext.DWZJson');
 
 class HotelController extends Controller {
@@ -54,7 +55,14 @@ class HotelController extends Controller {
         $hotel->address($_POST['address']);
         $hotel->userId($_POST['user_id']);
         $hotel->isOpening($_POST['is_opening'] == 'on');
-        $hotel->status(intval($_POST['status']));
+
+        $status = intval($_POST['status']);
+        $hotel->status($status);
+
+        if($status == 1) {
+            $userService = UserService::getInstance();
+            $userService->setMerchant($hotel->userId());
+        }
 
         if($id == 0) {
             $hotel->addTime(time());

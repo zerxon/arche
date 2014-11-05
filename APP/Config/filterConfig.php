@@ -15,6 +15,12 @@
  */
 
 return array(
+    'AutoSignInFilter' => array(
+        'Enable' => true,
+        'Path' => '*',
+        'Type' => FilterType::ALL,
+    ),
+
     'AdminPermissionFilter' => array(
         'Enable' => true,
         'Path' => '^/admin',
