@@ -146,3 +146,16 @@ function oneTimeSession($key) {
 
     return $session;
 }
+
+function getFriendlyTime($time = null, $format = 'Y-m-d H:i:s') {
+    if($time == null)
+        $time = time();
+
+    return date($format, $time);
+}
+
+function week($index) {
+    $week= array('日','一','二','三','四','五','六');
+
+    return $week[$index];
+}

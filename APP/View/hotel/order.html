@@ -1,0 +1,36 @@
+{importTemplate('public/header')}
+
+<link rel="stylesheet" type="text/css" href="{PUBLIC_URL}css/order.css">
+
+<div class="container">
+    <div class="row-fluid">
+        <div class="span9 content-order box">
+            <div class="header">
+                {$room['hotel']['name']} - {$room['name']}，请选择入住日期:
+            </div>
+            <form class="form-horizontal" name="changePwd" method="POST" action="{SITE_URL}hotel/doOrder" novalidate="novalidate">
+                <div class="control-group">
+                    {loop $schedules $date $stock}
+                    <div class="controls">
+                        <label class="checkbox">
+                            <input name="date[]" value="{$date}" type="checkbox" {if $stock < 1}disabled="disabled"{/if}>{php echo getFriendlyTime($date, 'Y-m-d')} (星期{php echo week(date('w', $date))})
+                            {if $stock > 0}
+                                <font color="green">[可预订，剩余{$stock}间]</font>
+                            {else}
+                                <font color="red">[房间已满，不可预订]</font>
+                            {/if}
+                        </label>
+                    </div>
+                    {/loop}
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-success">提 交</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div><!--/.fluid-container-->
+
+{importTemplate('public/footer')}

@@ -5,8 +5,35 @@
 <div class="container">
     <div class="row-fluid">
 
-        <div class="span8 box">
+        <div class="span8">
+            {loop $hotel['rooms'] $index $room}
+            <div class="content block block-content box {if $index==0}first{/if} ">
 
+                <div class="room">
+                    {loop $room['photosArray'] $index $photo}
+                    {if $index==0}
+                    <div class="big-pic">
+                        <a href="{BASE_URL}$photo" rel="[gall{$room['id']}]" title="{$room['name']}">
+                            <img src="{BASE_URL}$photo">
+                        </a>
+                        <div class="more">点击可查看更多大图</div>
+                    </div>
+                    {else}
+                    <a style="display: none;" href="{BASE_URL}$photo" rel="[gall{$room['id']}]" title="{$room['name']}">
+                    </a>
+                    {/if}
+                    {/loop}
+
+                    <div class="info">
+                        <div class="title">{$room['name']}</div>
+                        <div class="price"><b>平日价:</b> <span>{$room['price']}元/天</span></div>
+                        <div class="price"><b>节假日价:</b> <span>{$room['otherPrice']}元/天</span></div>
+                        <div class="desc"><b>描述:</b> {$room['desc']}</div>
+                        <div class="order"><a href="" class="btn btn-large btn-success">预订</a></div>
+                    </div>
+                </div>
+            </div>
+            {/loop}
         </div>
 
         <div class="span4">
@@ -18,8 +45,8 @@
 
                     <div class="right-side">
                         <div class="title">{$hotel['name']}</div>
-                        <div class="contact">联系电话: {$hotel['tel']}</div>
-                        <div class="contact">其他电话: {$hotel['otherTel']}</div>
+                        <div class="contact"><b>联系电话:</b> {$hotel['tel']}</div>
+                        <div class="contact"><b>其他电话:</b> {$hotel['otherTel']}</div>
                     </div>
                 </div>
             </div>
@@ -39,4 +66,11 @@
 
 </div><!--/.fluid-container-->
 
+<link rel="stylesheet" type="text/css" href="{PUBLIC_URL}foxibox-0.2/style/jquery-foxibox-0.2.css">
+<script src="{PUBLIC_URL}foxibox-0.2/script/jquery-foxibox-0.2.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('a[rel]').foxibox();
+    });
+</script>
 {importTemplate('public\footer')}

@@ -7,6 +7,7 @@
 
 import('Library.Core.Model.ARModel');
 import('Model.entity.User');
+import('Model.entity.Room');
 
 class Hotel extends ARModel {
     protected $_tableName = 'hotel';

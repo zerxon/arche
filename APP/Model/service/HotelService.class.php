@@ -60,6 +60,17 @@ class HotelService {
         return $hotel->toArray();
     }
 
+    public function getOneByIdWithRooms($id) {
+        $id = intval($id);
+
+        $hotel = $this->_hotelORM->selectAll()
+            ->fetch('rooms')
+            ->where()->field('id')->eq($id)
+            ->queryOne();
+
+        return $hotel;
+    }
+
     public function save($hotel) {
         return $hotel->save();
     }

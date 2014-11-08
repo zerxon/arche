@@ -64,7 +64,7 @@ abstract class ARModel extends Model {
         if(!$pKeyValue)
             error("primary key value not set");
 
-        $sql = "DELETE FROM $this->getTableName() WHERE $pKey='$pKeyValue'";
+        $sql = "DELETE FROM ".$this->getTableName()." WHERE $pKey='$pKeyValue'";
         $result = $this->_driver->query($sql);
 
         if($result)

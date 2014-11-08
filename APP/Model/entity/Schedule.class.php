@@ -14,7 +14,9 @@ class Schedule extends ARModel {
     protected $_fields = array(
         'id'=>'id',
         'orderId'=>'order_id',
-        'date'=>'date'
+        'roomId'=>'room_id',
+        'checkinDate'=>'checkin_date',
+        'isCheckIn'=>'is_checkin'
     );
 
 }

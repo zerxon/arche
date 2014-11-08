@@ -1,6 +1,69 @@
+<link rel="stylesheet" type="text/css" href="{PUBLIC_URL}uploadify/uploadify.css" media="all" >
+
+<script type="text/javascript">
+    if(typeof JSON == 'undefined'){
+        var script = document.createElement('script');
+        script.setAttribute('type', 'text/javascript');
+        script.setAttribute('src','{PUBLIC_URL}js/json2.js');
+        document.getElementsByTagName('head')[0].appendChild(script);
+    }
+
+    function cellHtml(imageData) {
+        html = "<div class='cell'>"+
+                "<span class='icon-remove remove'></span>"+
+                "<div class='thumb'>"+
+                "<img src='{BASE_URL}"+imageData.path+"'>"+
+                "<input type='hidden' name='photos[]' value='"+imageData.path+"'>"+
+                "</div>"+
+                "</div>";
+
+        return html;
+    }
+
+    $(function(){
+        $('#add-room').click(function(){
+            $('#new-room').slideDown();
+            $(this).parent().slideUp();
+        });
+
+        $('#cancel').click(function(){
+            $('#new-room').slideUp();
+            $('#add-room').parent().slideDown();
+        });
+
+        $('.cell').live('mouseover', function(){
+            $(this).children('.remove').show();
+        });
+
+        $('.cell').live('mouseout', function(){
+            $(this).children('.remove').hide();
+        });
+
+        $('.remove').live('click', function(){
+
+            var cell = $(this).parent();
+            var imgUrl = $(this).parent().find('img').attr('src');
+
+            $.ajax({
+                url: '{SITE_URL}account/merchant/roomPhotoDelete',
+                type: 'GET',
+                data: {imgUrl: imgUrl},
+                dataType: 'json',
+                success: function(data) {
+                    cell.remove();
+                }
+            });
+
+        });
+    });
+</script>
+
+<script type="text/javascript" src="{PUBLIC_URL}uploadify/jquery.uploadify.js"></script>
+
+
 <div class="room-content">
     <div class="room-add box" {if !$rooms}style="display: none"{/if}>
-        <a href="javascript:viod(0);" class="btn btn-primary" id="add-room">添加房间</a>
+        <a href="javascript:void(0);" class="btn btn-primary" id="add-room">添加房间</a>
     </div>
 
     <div {if $rooms}style="display: none; background-color: #fcf8e3;"{else}style="background-color: #fcf8e3;"{/if} class="room-item box" id="new-room">
@@ -8,7 +71,7 @@
             <h5 style="color: green">添加房间</h5>
         </div>
         <div>
-            <form class="form-horizontal" name="roomEdit{$room[id]}" method="POST" action="{SITE_URL}account/merchant/{if $type == 'step2'}doStep2{else}doRoomAdd{/if}">
+            <form class="form-horizontal" name="roomEdit" method="POST" action="{SITE_URL}account/merchant/{if $type == 'step2'}doStep2{else}doRoomAdd{/if}">
                 <div class="control-group">
                     <label class="control-label"><span class="require">*</span>名称</label>
                     <div class="controls">
@@ -45,6 +108,27 @@
                 </div>
 
                 <div class="control-group">
+                    <label class="control-label">图片</label>
+                    <div class="controls">
+                        {loop $room['photosArray'] $photo}
+                        <div class="cell">
+                            <div class="thumb">
+                                <img src="{BASE_URL}{$photo}">
+                                <input type="hidden" name="photos[]" value="{$photo}">
+                            </div>
+                        </div>
+                        {/loop}
+
+                        <div id="newUploadCell" class="cell">
+                            <div class="thumb">
+                                <input type="file"  id="roomPhotos" name="file" />
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="control-group">
                     <div class="controls">
                         <input type="hidden" name="room_id" value="{$room['id']}">
                         <button type="submit" class="btn btn-success">添 加</button>&nbsp;&nbsp;
@@ -56,8 +140,48 @@
         </div>
     </div>
 
+    <script type="text/javascript">
+        $(function(){
+            var field = $("input[id='roomPhotos']");
+
+            field.uploadify({
+                'buttonText': '选择图片',
+                'swf': '{PUBLIC_URL}uploadify/uploadify.swf?v=' + ( parseInt(Math.random()*1000) ),
+                'uploader'  : '{SITE_URL}account/merchant/roomPhotoUpload?id=0',
+                'auto'      : true,
+                'multi'     : false,
+                'method'    : 'post',
+                'fileObjName' : 'upload',
+                'queueSizeLimit' : 1,
+                'fileSizeLimit' : '1024KB',
+                'fileTypeExts': '*.gif; *.jpg; *.png; *.jpeg',
+                'fileTypeDesc': '只允许.gif .jpg .png .jpeg 图片！',
+                'onSelect': function(file) {//选择文件后的触发事件
+                    //$("#upload").show();
+                },
+                'onUploadSuccess' : function(file, data, response){  //上传成功后的触发事件
+                    //field.uploadify('disable', true);
+
+                    var rst =JSON.parse(data);
+
+                    if( rst.status == 0 ){
+                        alert('上传失败:'+rst.info);
+                    }else{
+                        var imageData = rst.data;
+                        var html =  cellHtml(imageData);
+                        $("#newUploadCell").before(html);
+                    }
+                },
+                'onUploadError' : function(file, errorCode, errorMsg, errorString){
+                    alert(errorString);
+                }
+            });
+        });
+    </script>
+
     {loop $rooms $room}
     <div class="room-item box">
+        <a class="delete label label-important" onclick="return confirm('确定要删除')" href="{SITE_URL}account/merchant/doRoomDelete?{if $room['id']}id={$room['id']}{elseif $room['timeId']}time_id={$room['timeId']}{/if}">X</a>
         <div class="item-header">
             <h5>{$room['name']}</h5>
         </div>
@@ -108,6 +232,28 @@
                 </div>
 
                 <div class="control-group">
+                    <label class="control-label">图片</label>
+                    <div class="controls">
+                        {loop $room['photosArray'] $photo}
+                        <div class="cell">
+                            <span class="icon-remove remove"></span>
+                            <div class="thumb">
+                                <img src="{BASE_URL}{$photo}">
+                                <input type="hidden" name="photos[]" value="{$photo}">
+                            </div>
+                        </div>
+                        {/loop}
+
+                        <div id="uploadCell{$room[id]}{$room[timeId]}" class="cell">
+                            <div class="thumb">
+                                <input type="file"  id="roomPhotos{$room[id]}{$room[timeId]}" name="file" />
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="control-group">
                     <div class="controls">
                         <input type="hidden" name="room_id" value="{$room['id']}">
                         <input type="hidden" name="time_id" value="{$room['timeId']}">
@@ -118,6 +264,48 @@
             </form>
         </div>
     </div>
+
+    <script type="text/javascript">
+        $(function(){
+            var field = $("input[id='roomPhotos{$room[id]}{$room[timeId]}']");
+
+            field.uploadify({
+                'buttonText': '选择图片',
+                'swf': '{PUBLIC_URL}uploadify/uploadify.swf?v=' + ( parseInt(Math.random()*1000) ),
+                'uploader'  : '{SITE_URL}account/merchant/roomPhotoUpload?id={$room[id]}{$room[timeId]}',
+                'auto'      : true,
+                'multi'     : false,
+                'method'    : 'post',
+                'fileObjName' : 'upload',
+                'queueSizeLimit' : 1,
+                'fileSizeLimit' : '1024KB',
+                'fileTypeExts': '*.gif; *.jpg; *.png; *.jpeg',
+                'fileTypeDesc': '只允许.gif .jpg .png .jpeg 图片！',
+                'onSelect': function(file) {//选择文件后的触发事件
+                    //$("#upload").show();
+                },
+                'onUploadSuccess' : function(file, data, response){  //上传成功后的触发事件
+                    //field.uploadify('disable', true);
+
+                    var rst =JSON.parse(data);
+
+                    if( rst.status == 0 ){
+                        alert('上传失败:'+rst.info);
+                    }else{
+                        var imageData = rst.data;
+                        var html =  cellHtml(imageData);
+                        $("#uploadCell{$room[id]}{$room[timeId]}").before(html);
+                    }
+                },
+                'onUploadError' : function(file, errorCode, errorMsg, errorString){
+                    alert(errorString);
+                }
+            });
+
+
+        });
+
+    </script>
     {/loop}
 </div>
 
@@ -133,14 +321,37 @@
             return this.optional(element) || amount.test(value);
         }, "必须是大于0的正整数");
 
-        $('#add-room').click(function(){
-            $('#new-room').slideDown();
-            $(this).parent().slideUp();
-        });
-
-        $('#cancel').click(function(){
-            $('#new-room').slideUp();
-            $('#add-room').parent().slideDown();
+        $('form[name="roomEdit"]').validate({
+            errorElement:'span',
+            success: function(label){
+                label.addClass('success');
+            },
+            rules: {
+                name: {
+                    required: true,
+                    rangelength: [2,10]
+                },
+                price: {
+                    required: true,
+                    price:true
+                },
+                amount: {
+                    required: true,
+                    amount:true
+                }
+            },
+            messages: {
+                name: {
+                    required: '不能为空',
+                    rangelength: '2-10个字符'
+                },
+                price: {
+                    required: '不能为空'
+                },
+                amount: {
+                    required: '不能为空'
+                }
+            }
         });
     });
 </script>
@@ -148,15 +359,6 @@
 {loop $rooms $room}
 <script type="text/javascript">
     $(function(){
-        jQuery.validator.addMethod("price", function(value, element) {
-            var status = !isNaN(value) && value > 0;
-            return this.optional(element) || status;
-        }, "必须是大于0的正数");
-
-        jQuery.validator.addMethod("amount", function(value, element) {
-            var amount = /^[1-9]\d*$/;
-            return this.optional(element) || amount.test(value);
-        }, "必须是大于0的正整数");
 
         $('form[name="roomEdit{$room[id]}{$room[timeId]}"]').validate({
             errorElement:'span',

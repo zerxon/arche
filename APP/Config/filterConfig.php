@@ -62,7 +62,7 @@ return array(
     ),
 
     'MerchantEnterFilter' => array(
-        'Enable' => true,
+        'Enable' => false,
         'Path' => '^/account/merchant/step',
         'Type' => FilterType::CONTAIN,
         'Option' => array(

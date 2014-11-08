@@ -57,7 +57,7 @@ class ImageUpload {
         }
 
         //存储
-        $time = uniqid('upload_');
+        $time = uniqid();
 
         if( !is_dir($savepath) ){
             if( !mkdir($savepath, 0777, true) ){

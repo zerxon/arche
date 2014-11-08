@@ -7,6 +7,7 @@
 
 import('Model.entity.Room');
 import('Model.entity.Hotel');
+import('Model.entity.Schedule');
 
 class RoomService {
     private $_roomORM;
@@ -45,7 +46,60 @@ class RoomService {
         return $room->toArray();
     }
 
-    public function doAdd($name, $price, $otherPrice, $amount, $desc, $userId) {
+    public function getOneByIdWithHotel($id) {
+        $id = intval($id);
+
+        if($id > 0) {
+            $room = $this->_roomORM->selectAll()
+                ->fetch('hotel')
+                ->where(array('id'=>$id))
+                ->queryOne();
+        }
+
+        return $room;
+    }
+
+    //获取
+    public function getAvailableSchedule($roomId, $amount) {
+        $roomId = intval($roomId);
+        $amount = intval($amount);
+
+        if($roomId < 1 || $amount < 1)
+            return false;
+
+        $beginTime = strtotime(date('Y-m-d', time()));
+        $endTime = strtotime(date('Y-m-d', strtotime('+1 week')));
+
+        $scheduleOrm = new ORM('Schedule');
+
+        $sql = "select *, count(*) as total from pa_schedule "
+            ."where room_id=$roomId and checkin_date between $beginTime and $endTime "
+            ."group by checkin_date";
+        $records = $scheduleOrm->sql($sql)->queryAll(false, true);
+
+        $schedules = array();
+        for($i = 0; $i < 7; $i++) {
+            $date = strtotime(date('Y-m-d',strtotime("+$i day")));
+
+            $exist = false;
+            foreach($records as $record) {
+                if($record['checkin_date'] == $date) {
+                    $exist = true;
+                    $count =  intval($record['total']);
+                    $schedules[$date] = $amount - $count;
+                    break;
+                }
+            }
+
+            if(!$exist)
+                $schedules[$date] = $amount;
+
+        }
+
+        return $schedules;
+    }
+
+    public function doAdd($name, $price, $otherPrice, $amount, $desc, $userId, $photos = null) {
         $status = true;
 
         $name = trim($name);
@@ -89,13 +143,18 @@ class RoomService {
             $room->amount($amount);
             $room->stock($amount);
 
+            if($photos)
+                $room->photos($photos);
+            else
+                $room->photos('');
+
             $status = $room->save() > 0;
         }
 
         return $status;
     }
 
-    public function doEdit($roomId ,$name, $price, $otherPrice, $amount, $desc, $userId) {
+    public function doEdit($roomId ,$name, $price, $otherPrice, $amount, $desc, $userId, $photos = null) {
         $status = true;
 
         $roomId = intval($roomId);
@@ -128,6 +187,11 @@ class RoomService {
                 $room->otherPrice($otherPrice);
                 $room->desc($desc);
 
+                if($photos)
+                    $room->photos($photos);
+                else
+                    $room->photos('');
+
                 if($room->amount() != $amount) {
                     $count = $amount- $room->amount();
                     $stock = $room->stock() + $count;
@@ -153,6 +217,23 @@ class RoomService {
 
     public function save($room) {
         return $room->save();
+    }
+
+    public function deleteByIdAndUserId($id, $userId) {
+        $status = false;
+
+        if(intval($id) > 0 && intval($userId) > 0 ) {
+            $room = $this->_roomORM->selectAll()
+                ->fetch('hotel')
+                ->where()->field('id')->eq($id)
+                ->queryOne(true);
+
+            if($room && $room->hotel() && $room->hotel()->userId() == $userId) {
+                $status = $room->delete();
+            }
+        }
+
+        return $status;
     }
 
     public function delete($id) {

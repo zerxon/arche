@@ -404,9 +404,12 @@ class ORM {
         }
     }
 
-    public function queryAll($isObj = false) {
+    public function queryAll($isObj = false, $isOrigin = false) {
         $this->_processSQLString();
         $records = $this->_driver->fetch_all_assoc($this->_sql);
+
+        if($isOrigin)
+            return $records;
 
         if(count($records) > 0) {
             $objects = $this->_reflection->parseAll($records);

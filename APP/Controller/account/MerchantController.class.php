@@ -100,6 +100,30 @@ class MerchantController extends Controller {
         $this->_output($data, 'json');
     }
 
+    public function roomPhotoUpload() {
+        $id = intval($_GET['id']);
+        $data = ImageUpload::receive($_FILES['upload'], 'Public/upload/room/', ROOT_PATH);
+
+        if($data['status']) {
+            array_push($_SESSION['room_photos'][$id], $data['data']['path']);
+        }
+
+        $this->_output($data, 'json');
+    }
+
+    public function roomPhotoDelete() {
+        $imgUrl = $_GET['imgUrl'];
+        $imgUrl = str_replace(BASE_URL, '', $imgUrl);
+
+        $status = unlink($imgUrl);
+
+        $data = array(
+            'status' => $status
+        );
+
+        $this->_output($data, 'json');
+    }
+
     public function doRoomAdd() {
         $this->_initRoomService();
 
@@ -111,7 +135,10 @@ class MerchantController extends Controller {
         $amount = $_POST['amount'];
         $desc = $_POST['desc'];
 
-        $status =  $this->_roomService->doAdd($name, $price, $otherPrice, $amount, $desc, $userId);
+        if(is_array($_POST['photos']) && count($_POST['photos']))
+            $photos = implode('|', $_POST['photos']);
+
+        $status =  $this->_roomService->doAdd($name, $price, $otherPrice, $amount, $desc, $userId, $photos);
 
         if(!$status) {
             $_SESSION[TIPS_TYPE] = TipsType::ERROR;
@@ -133,6 +160,14 @@ class MerchantController extends Controller {
 
         if($hotel && $hotel['rooms']) {
             $rooms = array_reverse($hotel['rooms']);
+
+            foreach($rooms as $index => $room) {
+                if($room['photos'])
+                    $room['photosArray'] = explode('|', $room['photos']);
+
+                $rooms[$index] = $room;
+            }
+
             $this->_assign('rooms', $rooms);
         }
 
@@ -151,7 +186,10 @@ class MerchantController extends Controller {
         $amount = $_POST['amount'];
         $desc = $_POST['desc'];
 
-        $status =  $this->_roomService->doEdit($roomId ,$name, $price, $otherPrice, $amount, $desc, $userId);
+        if(is_array($_POST['photos']) && count($_POST['photos']))
+            $photos = implode('|', $_POST['photos']);
+
+        $status =  $this->_roomService->doEdit($roomId ,$name, $price, $otherPrice, $amount, $desc, $userId, $photos);
 
         if($status === -1) {
             $_SESSION[TIPS_TYPE] = TipsType::ERROR;
@@ -167,6 +205,38 @@ class MerchantController extends Controller {
         }
 
         $this->_redirect(SITE_URL.'account/merchant/roomEdit');
+    }
+
+    public function doRoomDelete() {
+        $this->_initRoomService();
+
+        $userId = $_SESSION[SESSION_USER]['id'];
+        $id = intval($_GET['id']);
+        $timeId = intval($_GET['time_id']);
+
+        if($id > 0) {
+            $status = $this->_roomService->deleteByIdAndUserId($id, $userId);
+        }
+        else if($_SESSION['rooms'][$timeId]) {
+            $status = true;
+            unset($_SESSION['rooms'][$timeId]);
+        }
+
+        if($status) {
+            $_SESSION[TIPS_TYPE] = TipsType::SUCCESS;
+            $_SESSION[TIPS] = '删除成功';
+        }
+        else {
+            $_SESSION[TIPS_TYPE] = TipsType::ERROR;
+            $_SESSION[TIPS] = '删除失败';
+        }
+
+        if($id > 0) {
+            $this->_redirect(SITE_URL.'account/merchant/roomEdit');
+        }
+        else if($timeId > 0) {
+            $this->_redirect(SITE_URL.'account/merchant/step2');
+        }
     }
 
     public function step() {
@@ -257,10 +327,16 @@ class MerchantController extends Controller {
                 $obj->desc(base64_decode( $obj->desc()));
 
                 $room = $obj->toArray();
+
                 $room['timeId'] = $obj->timeId();
+
+                if($room['photos'])
+                    $room['photosArray'] = explode('|', $room['photos']);
 
                 array_push($rooms ,$room);
             }
+
+            $rooms = array_reverse($rooms);
             $this->_assign('rooms', $rooms);
         }
 
@@ -279,6 +355,8 @@ class MerchantController extends Controller {
         $otherPrice = intval($_POST['other_price']);
         $amount = intval($_POST['amount']);
         $desc = trim($_POST['desc']);
+
+        $photosArray = $_POST['photos'];
 
         $timeId = $_POST['time_id'];
 
@@ -299,6 +377,10 @@ class MerchantController extends Controller {
             $room->desc(base64_encode($desc));
             $room->amount($amount);
             $room->stock($amount);
+
+            if(is_array($photosArray) && count($photosArray) > 0) {
+                $room->photos(implode('|', $photosArray));
+            }
 
             if(!$timeId || !isset($_SESSION['rooms'][$timeId])) {
                 $timeId = time();
