@@ -5,7 +5,8 @@
  * @date: 14-10-27
  */
 
-import('Model.Entity.Order');
+import('Model.entity.Order');
+import('Model.entity.Schedule');
 
 class OrderService {
     private $_orderORM;
@@ -35,5 +36,50 @@ class OrderService {
             ->queryPage($pageIndex, $pageSize);
 
         return $ordersPage;
+    }
+
+    public function confirmOrder($date, $roomId, $userId, $comment) {
+        $status = false;
+
+        $roomId = intval($roomId);
+        $userId = intval($userId);
+
+        if(!$roomId || !$userId)
+            return $status;
+
+        $strDate = '';
+        foreach($date as $d) {
+            $strDate .= getFriendlyTime($d, 'Y-m-d');
+            $strDate .= "(星期".week(date('w', $d)).")|";
+        }
+
+        if($strDate) {
+            $strDate = substr($strDate, 0, strlen($strDate) - 1);
+            $order = new Order();
+            $order->roomId($roomId);
+            $order->userId($userId);
+            $order->code(microTimestamp());
+            $order->comment($comment);
+            $order->range($strDate);
+            $order->addTime(time());
+
+            $orderId = $order->save();
+
+            //插入数据到schedule
+            if($orderId > 0) {
+                $status = true;
+
+                foreach($date as $d) {
+                    $schedule = new Schedule();
+                    $schedule->orderId($orderId);
+                    $schedule->roomId($roomId);
+                    $schedule->checkinDate($d);
+
+                    $schedule->save();
+                }
+            }
+        }
+
+        return $status;
     }
 }

@@ -21,6 +21,7 @@ class Order extends ARModel {
         'userId'=>'user_id',
         'code'=>'code',
         'comment'=>'comment',
+        'range'=>'range',
         'status'=>'status',
         'addTime'=>'add_time'
     );

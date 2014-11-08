@@ -7,7 +7,7 @@
 
 import('Model.entity.Room');
 import('Model.entity.Hotel');
-import('Model.entity.Schedule');
+import('Model.service.Schedule');
 
 class RoomService {
     private $_roomORM;

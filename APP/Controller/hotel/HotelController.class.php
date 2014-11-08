@@ -7,6 +7,8 @@
 
 import('Model.service.HotelService');
 import('Model.service.RoomService');
+import('Model.service.OrderService');
+import('Library.Ext.TipsType');
 
 class HotelController extends Controller {
 
@@ -49,49 +51,101 @@ class HotelController extends Controller {
     public function order() {
         $this->_initRoomService();
 
-        $id = intval($_GET['room_id']);
+        $id = intval($_REQUEST['room_id']);
 
         if(!$id)
-            error('参数无效');
+            $error = '参数无效';
 
         $roomService = RoomService::getInstance();
         $room = $roomService->getOneByIdWithHotel($id);
 
         if(!$room)
-            error('参数无效');
+            $error = '参数无效';
 
         $schedules = $roomService->getAvailableSchedule($id, $room['amount']);
 
         if($schedules == false)
-            error('无法获取时间表');
+            $error = '无法获取时间表';
 
-        $this->_assign('room', $room);
-        $this->_assign('schedules', $schedules);
-        $this->_display('hotel/order');
+        if($error) {
+            $_SESSION[TIPS_TYPE] = TipsType::ERROR;
+            $_SESSION[TIPS] = $error;
+            $this->_redirect(SITE_URL);
+        }
+        else {
+            $this->_assign('room', $room);
+            $this->_assign('schedules', $schedules);
+            $this->_display('hotel/order');
+        }
+
     }
 
     public function doOrder() {
         $this->_initRoomService();
 
-        $id = intval($_POST['room_id']);
+        $roomId = intval($_POST['room_id']);
         $date = $_POST['date'];
+        $comment = trim($_POST['comment']);
 
-        if(!$id)
-            error('参数无效');
+        $userId = intval($_SESSION[SESSION_USER]['id']);
+
+        if(!$roomId || !$userId) {
+            $error = '参数无效';
+        }
+
+        if(empty($date)) {
+            $error = '请选择入住时间';
+            $_SESSION[TIPS_TYPE] = TipsType::WARNING;
+            $_SESSION[TIPS] = $error;
+            $this->_redirect(SITE_URL.'hotel/order?room_id='.$roomId);
+        }
 
         $roomService = RoomService::getInstance();
-        $room = $roomService->getOneByIdWithHotel($id);
+        $room = $roomService->getOneByIdWithHotel($roomId);
 
         if(!$room)
-            error('参数无效');
+            $error = '参数无效';
 
-        $schedules = $roomService->getAvailableSchedule($id, $room['amount']);
+        $schedules = $roomService->getAvailableSchedule($roomId, $room['amount']);
 
         if($schedules == false)
-            error('无法获取时间表');
+            $error = '无法获取时间表';
 
+        //检查是否有不合法的预订时间
+        if(!$error) {
+            foreach($date as $d) {
+                if(!isset($schedules[$d])) {
+                    $error = "会话过期， 请重新下单";
+                    $_SESSION[TIPS_TYPE] = TipsType::WARNING;
+                    $_SESSION[TIPS] = $error;
+                    $this->_redirect(SITE_URL.'hotel/order?room_id='.$roomId);
+                }
+                else if($schedules[$d] == 0) {
+                    $error = '您的订单中含有预订已满的房间，请重新下单';
+                    $_SESSION[TIPS_TYPE] = TipsType::WARNING;
+                    $_SESSION[TIPS] = $error;
+                    $this->_redirect(SITE_URL.'hotel/order?room_id='.$roomId);
+                }
+            }
+        }
 
-        debug($date);
+        if(!$error) {
+            $orderService = OrderService::getInstance();
+            $status = $orderService->confirmOrder($date, $roomId, $userId, $comment);
+            if(!$status)
+                $error = '下单失败';
+        }
+
+        if($error) {
+            $_SESSION[TIPS_TYPE] = TipsType::ERROR;
+            $_SESSION[TIPS] = $error;
+            $this->_redirect(SITE_URL);
+        }
+        else {
+            $_SESSION[TIPS_TYPE] = TipsType::ERROR;
+            $_SESSION[TIPS] = $error;
+            $this->_redirect(SITE_URL.'account/myOrder');
+        }
     }
 
 }

@@ -159,3 +159,9 @@ function week($index) {
 
     return $week[$index];
 }
+
+function microTimestamp() {
+    $timestamp = microtime(true) * 10000;
+
+    return $timestamp;
+}

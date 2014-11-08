@@ -29,7 +29,12 @@
                         <div class="price"><b>平日价:</b> <span>{$room['price']}元/天</span></div>
                         <div class="price"><b>节假日价:</b> <span>{$room['otherPrice']}元/天</span></div>
                         <div class="desc"><b>描述:</b> {$room['desc']}</div>
-                        <div class="order"><a href="" class="btn btn-large btn-success">预订</a></div>
+                        <div class="order">
+                            <form method="POST" action="{SITE_URL}hotel/order">
+                                <input type="hidden" name="room_id" value="{$room['id']}">
+                                <button type="submit" class="btn btn-large btn-success">预订</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
