@@ -166,9 +166,6 @@ class UserService {
         if($fullName && (mb_strlen($fullName, 'utf-8') < 2 || mb_strlen($fullName, 'utf-8') > 16))
             $status = false;
 
-        if(strlen($otherTel) == 0)
-            $status = false;
-
         if($status && intval($user->id()) > 0) {
             $status = $user->save();
         }

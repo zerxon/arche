@@ -6,6 +6,7 @@
  */
 
 import('Model.service.UserService');
+import('Model.service.OrderService');
 import('Library.Ext.TipsType');
 
 class AccountController extends Controller {
@@ -144,6 +145,26 @@ class AccountController extends Controller {
             $json = array('notExist' => true);
             $this->_output($json, 'json');
         }
+    }
+
+    public function myOrder() {
+        $userId = intval($_SESSION[SESSION_USER]['id']);
+
+        $params = array(
+            'userId' => $userId
+        );
+
+        $order = array(
+            'id' => 'desc'
+        );
+
+        $orderService = OrderService::getInstance();
+        $page = $orderService->getOrdersByPage(1, 10, $params, $order);
+
+        //debug($page);
+
+        $this->_assign('page', $page);
+        $this->_display('account/my_order');
     }
 
 }

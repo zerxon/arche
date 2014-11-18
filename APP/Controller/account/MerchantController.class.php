@@ -7,8 +7,10 @@
 
 import('Model.service.HotelService');
 import('Model.service.RoomService');
+import('Model.service.OrderService');
 import('Library.Ext.TipsType');
 import('Library.Ext.ImageUpload');
+import('Library.Ext.Pagination');
 
 class MerchantController extends Controller {
 
@@ -453,5 +455,30 @@ class MerchantController extends Controller {
         }
 
         $this->_display('merchant/step_3');
+    }
+
+    public function hotelOrder() {
+        $merchantId = intval($_SESSION[SESSION_USER]['id']);
+
+        $params = null;
+
+        $order = array(
+            'id' => 'desc'
+        );
+
+        $pageIndex = intval($_GET['page']) > 0 ? intval($_GET['page']) : 1;
+        $pageSize = 3;
+
+        $orderService = OrderService::getInstance();
+        $page = $orderService->getHotelOrdersByPage($merchantId, $pageIndex, $pageSize, $params, $order);
+
+        $pagination = new Pagination($page);
+        $pagination->showSize = 5;
+        $pagination->url = SITE_URL.'account/merchant/hotelOrder?page=';
+        $paging = $pagination->page();
+
+        $this->_assign('page', $page);
+        $this->_assign('paging', $paging);
+        $this->_display('merchant/hotel_order');
     }
 }

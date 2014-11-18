@@ -17,6 +17,7 @@ class Order extends ARModel {
 
     protected $_fields = array(
         'id'=>'id',
+        'hotelId'=>'hotel_id',
         'roomId'=>'room_id',
         'userId'=>'user_id',
         'code'=>'code',
@@ -27,6 +28,14 @@ class Order extends ARModel {
     );
 
     protected $_mappers = array(
+        'hotel'=>array(
+            'Type'=>'hasOne',
+            'Fetch'=>FetchType::LAZY,
+            'Target'=>'Hotel',
+            'Mapping'=>array(
+                'hotelId'=>'id'
+            ),
+        ),
         'room'=>array(
             'Type'=>'hasOne',
             'Fetch'=>FetchType::LAZY,

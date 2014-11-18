@@ -38,6 +38,27 @@ class OrderService {
         return $ordersPage;
     }
 
+    public function getHotelOrdersByPage($merchantId, $pageIndex, $pageSize, $params = null, $order = null) {
+        $merchantId = intval($merchantId);
+
+        if($merchantId > 0) {
+            $hotel = new Hotel();
+            $hotel->findOne(array('userId'=>$merchantId));
+
+            if(!$hotel->isEmpty()) {
+                $orm = $this->_orderORM->selectAll()->fetch('room', 'user');
+
+                if(is_array($params) && count($params) > 0)
+                    $orm = $orm->where($params);
+
+                $ordersPage = $orm->orderBy($order)
+                    ->queryPage($pageIndex, $pageSize);
+            }
+        }
+
+        return $ordersPage;
+    }
+
     public function confirmOrder($date, $roomId, $userId, $comment) {
         $status = false;
 
@@ -45,6 +66,12 @@ class OrderService {
         $userId = intval($userId);
 
         if(!$roomId || !$userId)
+            return $status;
+
+        $room = new Room();
+        $room->findOne($roomId);
+
+        if($room->isEmpty())
             return $status;
 
         $strDate = '';
@@ -56,6 +83,7 @@ class OrderService {
         if($strDate) {
             $strDate = substr($strDate, 0, strlen($strDate) - 1);
             $order = new Order();
+            $order->hotelId($room->hotelId());
             $order->roomId($roomId);
             $order->userId($userId);
             $order->code(microTimestamp());
@@ -82,4 +110,5 @@ class OrderService {
 
         return $status;
     }
+
 }

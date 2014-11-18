@@ -102,13 +102,6 @@ function makeDirectory($dir) {
     return is_dir($dir) or (makeDirectory(dirname($dir)) and mkdir($dir, 0777,true));
 }
 
-function slashes($str) {
-    if(get_magic_quotes_gpc() == 0)
-        $str = addslashes($str);
-
-    return $str;
-}
-
 function debug($str, $exit = true) {
     header('Content-Type: text/html; charset=UTF-8');
 
@@ -136,6 +129,45 @@ function error($str) {
     }
 }
 
+function slashes($str) {
+    if(get_magic_quotes_gpc() == 0)
+        $str = addslashes($str);
+
+    $str = filterText($str);
+
+    return $str;
+}
+
+function filterText($text){
+    $text=cleanJs($text);
+    $text=htmlspecialchars($text,ENT_QUOTES);
+
+    return $text;
+}
+
+function cleanJs($text){
+    $text = trim ( $text );
+    $text = stripslashes ( $text );
+    //完全过滤注释
+    $text = preg_replace ( '/<!--?.*-->/', '', $text );
+    //完全过滤动态代码
+
+    $text = preg_replace ( '/<\?|\?>/', '', $text );
+
+    //完全过滤js
+    $text = preg_replace ( '/<script?.*\/script>/', '', $text );
+    //过滤多余html
+    $text = preg_replace ( '/<\/?(html|head|meta|link|base|body|title|style|script|form|iframe|frame|frameset)[^><]*>/i', '', $text );
+    //过滤on事件lang js
+    while ( preg_match ( '/(<[^><]+)(lang|onfinish|onmouse|onexit|onerror|onclick|onkey|onload|onchange|onfocus|onblur)[^><]+/i', $text, $mat ) ){
+        $text = str_replace ( $mat [0], $mat [1], $text );
+    }
+    while ( preg_match ( '/(<[^><]+)(window\.|javascript:|js:|about:|file:|document\.|vbs:|cookie)([^><]*)/i', $text, $mat ) ){
+        $text = str_replace ( $mat [0], $mat [1] . $mat [3], $text );
+    }
+    return $text;
+}
+
 function oneTimeSession($key) {
     $session = null;
 
@@ -145,6 +177,25 @@ function oneTimeSession($key) {
     }
 
     return $session;
+}
+
+function hostUrl() {
+    if($_SERVER['HTTPS'] == 'on')
+        $protocol = 'https://';
+    else
+        $protocol = 'http://';
+
+    $hostUrl = $protocol.$_SERVER['HTTP_HOST'];
+
+    if($_SERVER['SERVER_PORT'] !== '80')
+        $hostUrl .= ':'.$_SERVER['SERVER_PORT'];
+
+    return $hostUrl;
+}
+
+function selfUrl() {
+    $selfUrl = hostUrl().$_SERVER['REQUEST_URI'];
+    return $selfUrl;
 }
 
 function getFriendlyTime($time = null, $format = 'Y-m-d H:i:s') {

@@ -16,25 +16,18 @@ defined('CONFIG_PATH') or define('CONFIG_PATH', APP_PATH.'Config/');
 defined('FILTER_PATH') or define('FILTER_PATH', APP_PATH.'Filter/');
 defined('CACHE_PATH') or define('CACHE_PATH', APP_PATH.'_Cache/');
 
-if($_SERVER['HTTPS'] == 'on') {
-    $protocol = 'https://';
-}
-else {
-    $protocol = 'http://';
-}
+include LIBRARY_PATH.'Core/function.php';
+C(tp_include(CONFIG_PATH.'baseConfig.php'));
+tp_include(LIBRARY_PATH.'Core/Router.class.php');
 
 $scriptName = $_SERVER['SCRIPT_NAME'];
 $phpName = end(explode('/', $scriptName));
-$baseUrl = $protocol.$_SERVER['HTTP_HOST'].str_replace($phpName, '', $scriptName);
+$baseUrl = hostUrl().str_replace($phpName, '', $scriptName);
 
 define('BASE_URL', $baseUrl);
 define('PUBLIC_URL', BASE_URL.'Public/');
 
 defined('SITE_URL') or define('SITE_URL', BASE_URL);
-
-include LIBRARY_PATH.'Core/function.php';
-C(tp_include(CONFIG_PATH.'baseConfig.php'));
-tp_include(LIBRARY_PATH.'Core/Router.class.php');
 
 //设置默认时区
 date_default_timezone_set(C('time_zone'));

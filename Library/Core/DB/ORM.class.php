@@ -95,13 +95,13 @@ class ORM {
         }
     }
 
-    private function _modelMapping($object, $reflection = null, $parentMapperKey = null) {
+    private function _modelMapping($object, $fetchs, $reflection = null, $parentMapperKey = null) {
         if($reflection == null) {
             $reflection = $this->_reflection;
         }
 
-        if(count($this->_fetchs) > 0)
-            $reflection->setMappersActive($this->_fetchs, $parentMapperKey);
+        if(count($fetchs) > 0)
+            $reflection->setMappersActive($fetchs, $parentMapperKey);
         else
             return;
 
@@ -161,7 +161,7 @@ class ORM {
                         $targetObject0 = $targetObjects[0];
                         $subReflection = new ModelReflection($targetObject0);
                         foreach($targetObjects as $index=>$targetObject) {
-                            $this->_modelMapping($targetObjects[$index], $subReflection, $parentMapperKey);
+                            $this->_modelMapping($targetObjects[$index], $fetchs, $subReflection, $parentMapperKey);
                         }
                         unset($subReflection);
                     }
@@ -180,7 +180,7 @@ class ORM {
 
                     //级联取出下一级关联映射对象
                     $subReflection = new ModelReflection($targetObject);
-                    $this->_modelMapping($targetObject, $subReflection, $parentMapperKey);
+                    $this->_modelMapping($targetObject, $fetchs, $subReflection, $parentMapperKey);
                     unset($subReflection);
 
                     $object->$setMappingField($targetObject);
@@ -232,7 +232,7 @@ class ORM {
         $this->_fetchs = func_get_args();
 
         if($argsCount == 0) {
-            error("ORM `fetch` must give least one parameter");
+            error("ORM `fetch` must give at least one parameter");
         }
 
         return $this;
@@ -390,7 +390,7 @@ class ORM {
         $record = $this->_driver->once_fetch_assoc($this->_sql);
         if($record) {
             $object = $this->_reflection->parse($record);
-            $this->_modelMapping($object);
+            $this->_modelMapping($object, $this->_fetchs);
 
             if($isObj) {
                 return $object;
@@ -408,6 +408,7 @@ class ORM {
         $this->_processSQLString();
         $records = $this->_driver->fetch_all_assoc($this->_sql);
 
+        //判断是否返回原始数据
         if($isOrigin)
             return $records;
 
@@ -415,7 +416,7 @@ class ORM {
             $objects = $this->_reflection->parseAll($records);
 
             foreach($objects as $object) {
-                $this->_modelMapping($object);
+                $this->_modelMapping($object, $this->_fetchs);
             }
 
             if($isObj) {
@@ -441,9 +442,14 @@ class ORM {
 
         $totalRecords = $this->_driver->get_value($sql);
 
+        //页面数量
+        $totalRecords % $pageSize == 0 ?  $p = 0 : $p = 1;
+        $totalPages = floor($totalRecords / $pageSize) + $p;
+
         $pageModel = array(
             'pageIndex' => $pageIndex,
             'pageSize' => $pageSize,
+            'totalPages' => $totalPages,
             'totalRecords'=> $totalRecords,
             'records' => $records
         );

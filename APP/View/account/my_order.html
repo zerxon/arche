@@ -1,0 +1,47 @@
+{importTemplate('public/header')}
+
+<link rel="stylesheet" type="text/css" href="{PUBLIC_URL}css/account.css">
+
+<div class="container">
+    <div class="row-fluid">
+        {importTemplate('account/sidebar')}
+        <div class="span9">
+            <div class="box content">
+                <div class="page-header">我的订单</div>
+
+                {loop $page['records'] $index $order}
+                <table class="table table-bordered order-cell">
+                    <thead>
+                    <tr class="header">
+                        <th width="76"><b>#</b></th>
+                        <th>旅馆</th>
+                        <th>房间类型</th>
+                        <th width="80">下单时间</th>
+                    </tr>
+                    </thead>
+                    <tbody algin="center">
+                    <tr>
+                        <td><b>{php echo $index+1}</b></td>
+                        <td>{$order['room']['hotel']['name']}</td>
+                        <td>{$order['room']['name']}</td>
+                        <td>{php echo getFriendlyTime($order['addTime'])}</td>
+                    </tr>
+                    <tr>
+                        <td><b>预订范围 (共{php echo substr_count($order['range'],'|') + 1}天)</b></td>
+                        <td colspan="3">{php echo str_replace('|','，',$order['range'])}</td>
+                    </tr>
+                    <tr>
+                        <td><b>留言</b></td>
+                        <td colspan="3">{$order['comment']}</td>
+                    </tr>
+
+                    </tbody>
+                </table>
+                {/loop}
+            </div>
+        </div><!--/span-->
+    </div><!--/row-->
+
+</div><!--/.fluid-container-->
+
+{importTemplate('public/footer')}

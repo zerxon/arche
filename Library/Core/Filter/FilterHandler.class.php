@@ -67,6 +67,7 @@ class FilterHandler {
 
                         //如果有匹配，则执行过滤操作
                         if($match) {
+                            $filter = isset($config['Filter']) ? $config['Filter'] : $filter;
                             import('Filter.'.$filter);
 
                             $context = new FilterContext($module, $action, $_SERVER['REQUEST_URI']);

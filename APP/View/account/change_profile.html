@@ -1,10 +1,14 @@
 {importTemplate('public/header')}
 
+<link rel="stylesheet" type="text/css" href="{PUBLIC_URL}css/account.css">
+
 <div class="container">
     <div class="row-fluid">
         {importTemplate('account/sidebar')}
         <div class="span9">
-            <div class="box account-content">
+            <div class="box content content-account">
+                <div class="page-header">修改资料</div>
+
                 <form class="form-horizontal" name="changeProfile" method="POST" action="{SITE_URL}account/doChangeProfile">
                     <div class="control-group">
                         <label class="control-label" for="inputTel">手机</label>
