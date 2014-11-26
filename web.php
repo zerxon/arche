@@ -11,7 +11,7 @@ define('ROOT_PATH', dirname(__FILE__).'/');
 define('APP_PATH', 'APP/');
 
 //APP Constant
-define('SITE_URL', 'http://127.0.0.1/arche/web.php/');
+define('SITE_URL', 'http://172.18.169.9/arche/web.php/');
 define('SESSION_ADMIN', 'session_admin');
 define('SESSION_USER', 'session_user');
 

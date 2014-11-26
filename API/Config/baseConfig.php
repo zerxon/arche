@@ -6,19 +6,19 @@
  */
 
 return array(
-    'is_debug'=>1,
+    'is_debug'=>true,
     'db'=>array(
         'host'=>'localhost',
         'user'=>'root',
         'pwd'=>'toor',
-        'name'=>'takeout',
-        'prefix'=>''
+        'name'=>'pa',
+        'prefix'=>'pa_'
     ),
     'controller'=>array(
         'base_class'=>'Library.Ext.APIController',
         'class_suffix'=>'APIController'
     ),
     'api_format'=>'json', /* string | json | xml */
-    'tpl'=>'.html',
-    'filter_enable'=>true
+    'filter_enable'=>true,
+    'time_zone'=>'PRC'
 );

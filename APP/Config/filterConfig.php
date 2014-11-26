@@ -48,7 +48,8 @@ return array(
         'Type' => FilterType::EXCEPT,
         'Option' => array(
             '^/account/doSignIn',
-            '^/account/doSignUp'
+            '^/account/doSignUp',
+            '^/account/checkExist'
         )
     ),
 
@@ -69,12 +70,13 @@ return array(
         'Type' => FilterType::CONTAIN,
         'Option' => array(
             '^/account/doSignIn',
-            '^/account/doSignUp'
+            '^/account/doSignUp',
+            '^/account/checkExist'
         )
     ),
 
     'MerchantEnterFilter' => array(
-        'Enable' => false,
+        'Enable' => true,
         'Path' => '^/account/merchant/step',
         'Type' => FilterType::CONTAIN,
         'Option' => array(
@@ -82,6 +84,19 @@ return array(
             '^/account/merchant/step1',
             '^/account/merchant/step2',
             '^/account/merchant/step3'
+        )
+    ),
+
+    'MerchantPermissionFilter' => array(
+        'Enable' => true,
+        'Path' => '^/account/merchant',
+        'Type' => FilterType::EXCEPT,
+        'Option' => array(
+            '^/account/merchant/step',
+            '^/account/merchant/doStep',
+            '^/account/merchant/roomPhotoUpload',
+            '^/account/merchant/uploadLogo',
+            '^/account/merchant/roomPhotoDelete'
         )
     ),
 

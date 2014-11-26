@@ -32,9 +32,57 @@
                         <td><b>预订范围 (共{php echo substr_count($order['range'],'|') + 1}天)</b></td>
                         <td colspan="4">{php echo str_replace('|','，',$order['range'])}</td>
                     </tr>
+
+                    {if $order['comment']}
                     <tr>
                         <td><b>留言</b></td>
                         <td colspan="4">{$order['comment']}</td>
+                    </tr>
+                    {/if}
+
+                    {if $order['status']==3}
+                    <tr>
+                        <td><b>订单密码</b></td>
+                        <td colspan="4">
+                            <b><font color="green">{$order['code']}</font></b>
+                        </td>
+                    </tr>
+                    {/if}
+
+                    <tr>
+                        <td><b>订单状态</b></td>
+                        <td colspan="4">
+                            {if $order['isExpiry']}
+                            <span class="label label-inverse">已过期</span>
+                            {/if}
+
+                            {if $order['status']==1}
+                            <span class="label label-success">已确认</span>
+                            {elseif $order['status']==2}
+                            <span class="label label-important">已取消</span>
+                            {elseif $order['status']==3}
+                            <span class="label label-success">入住成功</span>
+                            {else}
+                            <span class="label label-info">未确认</span>
+                            {/if}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td><b>订单操作</b></td>
+                        <td colspan="4">
+                            {if $order['status']==0 && !$order['isExpiry']}
+                                <a href="{SITE_URL}account/merchant/confirmOrder?order_id={$order['id']}" class="btn btn-success">确认订单</a>&nbsp;
+                            {/if}
+
+                            {if $order['status']<2 && !$order['isExpiry']}
+                                <a onclick="return confirm('您确定要取消该订单？')" href="{SITE_URL}account/merchant/cancelOrder?order_id={$order['id']}" class="btn btn-danger">取消订单</a>
+                            {/if}
+
+                            {if $order['status']==2 || $order['isExpiry']}
+                            <a onclick="return confirm('您确定要删除该订单？')" href="{SITE_URL}account/merchant/ignoreOrder?order_id={$order['id']}" class="btn btn-danger">删除订单</a>
+                            {/if}
+                        </td>
                     </tr>
 
                     </tbody>

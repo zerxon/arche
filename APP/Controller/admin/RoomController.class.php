@@ -53,12 +53,14 @@ class RoomController extends Controller {
         $room->hotelId($_POST['hotel_id']);
         $room->price(floatval($_POST['price']));
         $room->amount(intval($_POST['amount']));
-        $room->stock(intval($_POST['stock']));
+        //$room->stock(intval($_POST['stock']));
         $room->desc($_POST['desc']);
 
+        /*
         if($id == 0) {
             $room->stock($room->amount());
         }
+        */
 
         $result = $this->_roomService->save($room);
 

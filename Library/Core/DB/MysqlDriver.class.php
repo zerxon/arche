@@ -208,8 +208,9 @@ class MysqlDriver {
 			$Item[] = "`$key`='".($value)."'";
 		}
 		$upStr = implode(',',$Item);
-		$this->query("UPDATE $table  SET  $upStr $where");
-		return true;
+		$result = $this->query("UPDATE $table  SET  $upStr $where");
+
+        return $result;
 	}
 	 
 	/*

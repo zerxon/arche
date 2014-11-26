@@ -25,7 +25,9 @@
         }
 
     </style>
+    <!--
     <link href="{PUBLIC_URL}bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+    -->
 
     <script type="text/javascript" src="{PUBLIC_URL}js/jquery-1.7.2.min.js"></script>
     <script type="text/javascript" src="{PUBLIC_URL}bootstrap/js/bootstrap.js"></script>
@@ -34,8 +36,9 @@
     <![endif]-->
 
     <script type="text/javascript" src="{PUBLIC_URL}js/jquery.validate.min.js"></script>
+    {if !$_SESSION['session_user']}
     <script type="text/javascript" src="{PUBLIC_URL}js/validate.js"></script>
-    {if MODULE == 'account/Account'}
+    {elseif MODULE == 'account/Account'}
     <script type="text/javascript" src="{PUBLIC_URL}js/account-validate.js"></script>
     {elseif MODULE == 'account/Merchant'}
     <script type="text/javascript" src="{PUBLIC_URL}js/merchant-validate.js"></script>

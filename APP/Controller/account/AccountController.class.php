@@ -19,7 +19,10 @@ class AccountController extends Controller {
 
     public function index() {
 
-        $this->_display('account/index');
+        if($_SESSION[SESSION_USER]['isMerchant'])
+            $this->_redirect(SITE_URL.'account/merchant/hotelCenter');
+        else
+            $this->_redirect(SITE_URL.'account/myOrder');
     }
 
     public function doSignUp() {
@@ -42,8 +45,8 @@ class AccountController extends Controller {
     }
 
     public function doSignIn() {
-        $tel = trim($_POST['tel']);
-        $password = trim($_POST['password']);
+        $tel = trim($_POST['signin_tel']);
+        $password = trim($_POST['signin_password']);
         $keep = intval($_POST['keep']);
 
         $success = false;
@@ -151,7 +154,8 @@ class AccountController extends Controller {
         $userId = intval($_SESSION[SESSION_USER]['id']);
 
         $params = array(
-            'userId' => $userId
+            'userId' => $userId,
+            'isUserIgnore'=>0
         );
 
         $order = array(
@@ -161,10 +165,70 @@ class AccountController extends Controller {
         $orderService = OrderService::getInstance();
         $page = $orderService->getOrdersByPage(1, 10, $params, $order);
 
-        //debug($page);
+        if($page['records']) {
+            foreach($page['records'] as $index => $record) {
+                $strDate = substr($record['range'], 0, strpos($record['range'], '('));
+                $date = strtotime($strDate);
+                $date += 86400;
+                if($date < time())
+                    $page['records'][$index]['isExpiry'] =  true;
+                else
+                    $page['records'][$index]['isExpiry'] = false;
+            }
+        }
 
         $this->_assign('page', $page);
         $this->_display('account/my_order');
+    }
+
+    public function cancelOrder() {
+        $orderId = intval($_GET['order_id']);
+        $userId = intval($_SESSION[SESSION_USER]['id']);
+
+        $status = true;
+        if($orderId < 1)
+            $status = false;
+
+        if($status) {
+            $orderService = OrderService::getInstance();
+            $status = $orderService->cancelOrderByIdAndUserId($orderId, $userId);
+        }
+
+        if($status) {
+            $_SESSION[TIPS_TYPE] = TipsType::SUCCESS;
+            $_SESSION[TIPS] = '取消订单成功';
+        }
+        else {
+            $_SESSION[TIPS_TYPE] = TipsType::ERROR;
+            $_SESSION[TIPS] = '取消订单失败';
+        }
+
+        $this->_redirect(SITE_URL.'account/myOrder');
+    }
+
+    public function ignoreOrder() {
+        $orderId = intval($_GET['order_id']);
+        $userId = intval($_SESSION[SESSION_USER]['id']);
+
+        $status = true;
+        if($orderId < 1)
+            $status = false;
+
+        if($status) {
+            $orderService = OrderService::getInstance();
+            $status = $orderService->ignoreOrderByIdAndUserId($orderId, $userId);
+        }
+
+        if($status) {
+            $_SESSION[TIPS_TYPE] = TipsType::SUCCESS;
+            $_SESSION[TIPS] = '删除订单成功';
+        }
+        else {
+            $_SESSION[TIPS_TYPE] = TipsType::ERROR;
+            $_SESSION[TIPS] = '删除订单失败';
+        }
+
+        $this->_redirect(SITE_URL.'account/myOrder');
     }
 
 }

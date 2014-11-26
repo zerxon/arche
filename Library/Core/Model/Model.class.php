@@ -32,10 +32,17 @@ abstract class Model {
             'Type'=>'[hasMany | hasOne]',
             'Fetch'=>[FetchType::EAGER | FetchType::LAZY],
             'Target'=>'[targetTableName]',
+            'Order'=>'id desc', //默认排序
             'Mapping'=>array(
                 '[sourceField]'=>'[targetFiled]'
             )
         ),
+        */
+    );
+
+    protected $_transient = array(
+        /*
+        '字段名称' => '绑定的方法名称'
         */
     );
 
@@ -70,10 +77,10 @@ abstract class Model {
         if(property_exists($this,$classProperty)) {
             $this->$classProperty = $value;
         }
-        elseif(array_key_exists($property,$this->_fields)) {
+        elseif(array_key_exists($property, $this->_fields)) {
             $this->_fieldValues[$property] = $value;
         }
-        elseif(array_key_exists($property,$this->_mappers)) {
+        elseif(array_key_exists($property, $this->_mappers)) {
             $this->_fieldValues[$property] = $value;
         }
         else {
@@ -108,7 +115,7 @@ abstract class Model {
                 $this->_setter($property, $args[0]);
             }
             else {
-                error("method '".$method."' not found'");
+                error("undefined method '".$method."'");
             }
         }
     }
@@ -124,7 +131,7 @@ abstract class Model {
      */
     public function toArray() {
         $array = array();
-        if(count($this->_fieldValues) > 0) {
+        if(is_array($this->_fieldValues) && count($this->_fieldValues) > 0) {
             foreach($this->_fieldValues as $field=>$value) {
                 if(is_array($value)) {
                     $items = array();
@@ -141,6 +148,16 @@ abstract class Model {
                     $array[$field] = $value;
                 }
             }
+        }
+
+        if(is_array($this->_transient) && count($this->_transient) > 0) {
+            foreach($this->_transient as $field=>$function) {
+                if(method_exists($this, $function))
+                    $array[$field] = $this->$function();
+                else
+                    error("undefined method '$function'");
+            }
+
         }
 
         return $array;

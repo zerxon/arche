@@ -15,9 +15,10 @@
 <div class="pageContent">
 	<div class="panelBar">
 		<ul class="toolBar">
-			<li><a class="add" href="{SITE_URL}admin/order/edit" target="navTab"><span>添加</span></a></li>
-			<li><a class="delete" href="{SITE_URL}admin/order/delete?order_id=!#{order_id}#!" target="ajaxTodo" title="确定要删除吗?"><span>删除</span></a></li>
-			<li><a class="edit" href="{SITE_URL}admin/order/edit?order_id=!#{order_id}#!" target="navTab"><span>修改</span></a></li>
+            <!--
+			<li><a class="add" href="#" target="navTab"><span>添加</span></a></li>
+			<li><a class="delete" href="#" target="ajaxTodo" title="确定要删除吗?"><span>删除</span></a></li>
+			<li><a class="edit" href="#" target="navTab"><span>修改</span></a></li>
 			<li class="line">line</li>
 			<!--
 			<li><a class="icon" href="demo/common/dwz-team.xls" target="dwzExport" targetType="navTab" title="实要导出这些记录吗?"><span>导出EXCEL</span></a></li>
@@ -46,9 +47,18 @@
                 <td align="center">{$order['room']['price']}</td>
                 <td align="center">{$order['room']['hotel']['name']}</td>
                 <td align="center">{$order['code']}</td>
-                <td align="center" style="color:  {if $order['status']}green{else}red{/if}">
-                    {if $order['status']}
+                <td align="center" style="color:
+                {if $order['status']==1}green
+                {elseif $order['status']==2}red
+                {elseif $order['status']==3}orange
+                {else}blue{/if}">
+
+                    {if $order['status']==1}
                         已确认
+                    {elseif $order['status']==2}
+                        已取消
+                    {elseif $order['status']==3}
+                        已入住
                     {else}
                         未确认
                     {/if}

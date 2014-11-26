@@ -14,6 +14,7 @@ class ORM {
     private $_sql;
     private $_reflection;
     private $_tableName;
+    private $_operatorType;
 
     private $_fetchs = array();
 
@@ -96,9 +97,8 @@ class ORM {
     }
 
     private function _modelMapping($object, $fetchs, $reflection = null, $parentMapperKey = null) {
-        if($reflection == null) {
+        if($reflection == null)
             $reflection = $this->_reflection;
-        }
 
         if(count($fetchs) > 0)
             $reflection->setMappersActive($fetchs, $parentMapperKey);
@@ -130,17 +130,15 @@ class ORM {
                 array_push($mappingConditionArray, $str);
             }
 
-            /*
-            if($mapper['condition']) {
-                foreach($mapper['condition'] as $sourceField=>$target) {
-                    $sourceTableField = $reflection->getTableField($sourceField);
-                    $mappingCondition .= "$sourceTableField=".$object->getId()." AND ";
-                    //debug($mappingCondition);
-                }
-            }
-            */
-
             $mappingCondition = implode(' AND ', $mappingConditionArray);
+
+            //排序
+            if(!empty($mapper['Order'])) {
+                $order = explode(' ', $mapper['Order']);
+                $orderField = trim($order[0]);
+                $orderType = trim($order[1]);
+                $mappingCondition .= "ORDER BY ".$targetReflection->getTableFieldWithTableName($orderField)." $orderType";
+            }
 
             //查询字段
             $targetQueryString = $this->_queryString($targetReflection->getFields(), $targetReflection);
@@ -193,6 +191,8 @@ class ORM {
     }
 
     public function selectAll() {
+        $this->_operatorType = SQL_OPERATOR_TYPE::SELECT;
+
         $fields = $this->_reflection->getFields();
         $queryString = $this->_queryString($fields);
 
@@ -204,6 +204,8 @@ class ORM {
     public function select() {
         $argsCount = func_num_args();
         $args = func_get_args();
+
+        $this->_operatorType = SQL_OPERATOR_TYPE::SELECT;
 
         if($argsCount > 0) {
             //主键默认查询出来
@@ -239,18 +241,21 @@ class ORM {
     }
 
     public function update() {
+        $this->_operatorType = SQL_OPERATOR_TYPE::UPDATE;
         $this->_sql = "UPDATE $this->_tableName SET";
 
         return $this;
     }
 
     public function insert() {
+        $this->_operatorType = SQL_OPERATOR_TYPE::INSERT;
         $this->_sql = "INSERT INTO $this->_tableName SET";
 
         return $this;
     }
 
     public function delete() {
+        $this->_operatorType = SQL_OPERATOR_TYPE::DELETE;
         $this->_sql = "DELETE FROM $this->_tableName";
 
         return $this;
@@ -301,6 +306,13 @@ class ORM {
     public function field($field) {
         $tableFieldWithTableName = $this->_reflection->getTableFieldWithTableName($field);
         $this->_sql .= " $tableFieldWithTableName";
+
+        return $this;
+    }
+
+    public function nextField($field) {
+        $tableFieldWithTableName = $this->_reflection->getTableFieldWithTableName($field);
+        $this->_sql .= ",$tableFieldWithTableName";
 
         return $this;
     }
@@ -374,9 +386,24 @@ class ORM {
         return $this;
     }
 
+    public function limit($start, $end = null) {
+        $start = intval($start);
+        $end == null ? null : intval($end);
+
+        if($start > 0 && ($end == null || $end > 0)) {
+            if($end != null)
+                $limit = "LIMIT $start, $end";
+            else
+                $limit = "LIMIT $start";
+
+            $this->_sql .= $limit;
+        }
+
+        return $this;
+    }
+
     public function execute() {
         $result = $this->_driver->query($this->_sql);
-        //$this->_driver->affected_rows();
 
         $status = false;
         if($result)
@@ -385,9 +412,28 @@ class ORM {
         return $status;
     }
 
-    public function queryOne($isObj = false) {
+    public function queryAffectedRows() {
+        $result = $this->_driver->query($this->_sql);
+
+        $rows = 0;
+        if($result)
+            $rows = $this->_driver->affected_rows();
+
+        return $rows;
+    }
+
+    public function queryNumRows() {
+        return $this->_driver->once_num_rows($this->_sql);
+    }
+
+    public function queryOne($isObj = false, $isOrigin = false) {
         $this->_processSQLString();
         $record = $this->_driver->once_fetch_assoc($this->_sql);
+
+        //判断是否返回原始数据
+        if($isOrigin)
+            return $record;
+
         if($record) {
             $object = $this->_reflection->parse($record);
             $this->_modelMapping($object, $this->_fetchs);
@@ -441,6 +487,7 @@ class ORM {
         $sql = 'select count(*) FROM '.$sql;
 
         $totalRecords = $this->_driver->get_value($sql);
+        $totalRecords = intval($totalRecords);
 
         //页面数量
         $totalRecords % $pageSize == 0 ?  $p = 0 : $p = 1;
@@ -462,4 +509,11 @@ class ORM {
 class ORDER_TYPE {
     const ASC = 'ASC';
     const DESC = 'DESC';
+}
+
+class SQL_OPERATOR_TYPE {
+    const SELECT = 'select';
+    const INSERT = 'insert';
+    const UPDATE = 'update';
+    const DELETE ='delete';
 }

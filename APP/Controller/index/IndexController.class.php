@@ -17,7 +17,15 @@ class IndexController extends Controller {
 
     public function index() {
 
-        $hotelsPage = $this->_hotelService->getHotelsByPage(1, 10);
+        $params = array(
+            'status'=>1
+        );
+
+        $order = array(
+            'id'=>ORDER_TYPE::DESC
+        );
+
+        $hotelsPage = $this->_hotelService->getHotelsByPage(1, 10, $params, $order);
 
         $this->_assign('hotels', $hotelsPage['records']);
         $this->_display('index/index');

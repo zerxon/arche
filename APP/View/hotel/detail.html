@@ -27,7 +27,11 @@
                     <div class="info">
                         <div class="title">{$room['name']}</div>
                         <div class="price"><b>平日价:</b> <span>{$room['price']}元/天</span></div>
-                        <div class="price"><b>节假日价:</b> <span>{$room['otherPrice']}元/天</span></div>
+                        <div class="price"><b>节假日价:</b>
+                            {if $room['otherPrice'] > 0}
+                            <span>{$room['otherPrice']}元/天</span>
+                            {/if}
+                        </div>
                         <div class="desc"><b>描述:</b> {$room['desc']}</div>
                         <div class="order">
                             <form method="POST" action="{SITE_URL}hotel/order">
@@ -63,7 +67,7 @@
 
             <div class="content box block">
                 <div class="header">公告</div>
-                <div>{$hotel['desc']}</div>
+                <div class="notice">{$hotel['desc']}</div>
             </div>
 
         </div>

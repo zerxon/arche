@@ -123,7 +123,7 @@ class UserService {
 
         if(!preg_match('/^\d{11}$/', $tel))
             $status = false;
-        else if($this->_userService->getOneByTel($tel))
+        else if($this->getOneByTel($tel))
             $status = false;
 
         if(mb_strlen($password, 'utf-8') < 6 || strlen($password, 'utf-8') > 16)
@@ -158,7 +158,7 @@ class UserService {
 
         $name = $user->name();
         $fullName = $user->fullName();
-        $otherTel = $user->otherTel();
+        //$otherTel = $user->otherTel();
 
         if(mb_strlen($name, 'utf-8') < 2 || mb_strlen($name, 'utf-8') > 10)
             $status = false;
@@ -167,7 +167,7 @@ class UserService {
             $status = false;
 
         if($status && intval($user->id()) > 0) {
-            $status = $user->save();
+            $user->save();
         }
 
         return $status;
@@ -175,6 +175,9 @@ class UserService {
 
     public function changePassword($userId, $oldPwd, $newPwd, $rePwd) {
         $status = true;
+
+        if($oldPwd == $newPwd)
+            return $status;
 
         if(mb_strlen($oldPwd, 'utf-8') < 6 || strlen($oldPwd, 'utf-8') > 16)
             $status = false;

@@ -6,31 +6,25 @@
     <div class="row-fluid">
         {importTemplate('account/sidebar')}
         <div class="span9">
-            <div class="box content">
-                <div class="page-header">我的订单</div>
+            <div class="box content content-code">
+                <div class="page-header">验证状态</div>
 
-                {loop $page['records'] $index $order}
                 <table class="table table-bordered order-cell">
                     <thead>
                     <tr class="header">
-                        <th width="76"><b>#</b></th>
-                        <th>旅馆</th>
+                        <th width="76"><b>ID</b></th>
+                        <th>预订用户</th>
+                        <th>用户联系电话</th>
                         <th>房间类型</th>
-                        <th width="106">旅馆联系电话</th>
                         <th width="80">下单时间</th>
                     </tr>
                     </thead>
                     <tbody algin="center">
                     <tr>
                         <td><b>{$order['id']}</b></td>
-                        <td>{$order['room']['hotel']['name']}</td>
+                        <td>{$order['user']['name']}</td>
+                        <td>{$order['user']['tel']}{if $order['user']['otherTel']} , $order['user']['otherTel']{/if}</td>
                         <td>{$order['room']['name']}</td>
-                        <td>
-                            {$order['room']['hotel']['tel']}
-                            {if $order['room']['hotel']['otherTel']}
-                                ({$order['room']['hotel']['otherTel']})
-                            {/if}
-                        </td>
                         <td>{php echo getFriendlyTime($order['addTime'])}</td>
                     </tr>
                     <tr>
@@ -45,7 +39,7 @@
                     </tr>
                     {/if}
 
-                    {if $order['status']==1}
+                    {if $order['status']==3}
                     <tr>
                         <td><b>订单密码</b></td>
                         <td colspan="4">
@@ -73,30 +67,10 @@
                         </td>
                     </tr>
 
-                    <tr>
-                        <td><b>订单操作</b></td>
-                        <td colspan="4">
-                            {if $order['status']==1}
-                            <font color="#e9967a">
-                                温馨提示：您的订单已被商家确认，请及时入住，如需取消，请及时联系商家，联系电话:{$order['room']['hotel']['tel']}
-                                {if $order['room']['hotel']['otherTel']}
-                                ({$order['room']['hotel']['otherTel']})
-                                {/if}
-                            </font>
-                            {/if}
-                            {if $order['status']==0 && !$order['isExpiry']}
-                            <a onclick="return confirm('您确定要取消该订单？')" href="{SITE_URL}account/cancelOrder?order_id={$order['id']}" class="btn btn-danger">取消订单</a>
-                            {/if}
 
-                            {if $order['status']==2 || $order['isExpiry']}
-                            <a onclick="return confirm('您确定要删除该订单？')" href="{SITE_URL}account/ignoreOrder?order_id={$order['id']}" class="btn btn-danger">删除订单</a>
-                            {/if}
-                        </td>
-                    </tr>
 
                     </tbody>
                 </table>
-                {/loop}
             </div>
         </div><!--/span-->
     </div><!--/row-->

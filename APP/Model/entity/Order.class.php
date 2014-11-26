@@ -24,6 +24,8 @@ class Order extends ARModel {
         'comment'=>'comment',
         'range'=>'range',
         'status'=>'status',
+        'isUserIgnore'=>'is_user_ignore',
+        'isMerchantIgnore'=>'is_merchant_ignore',
         'addTime'=>'add_time'
     );
 

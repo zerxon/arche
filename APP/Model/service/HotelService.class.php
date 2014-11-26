@@ -24,10 +24,14 @@ class HotelService {
         $this->_hotelORM = new ORM('Hotel');
     }
 
-    public function getHotelsByPage($pageIndex, $pageSize) {
-        $hotelsPage = $this->_hotelORM->selectAll()
-            ->fetch('user')
-            ->orderBy(array('id'=>ORDER_TYPE::DESC))
+    public function getHotelsByPage($pageIndex, $pageSize, $params = null, $order = null) {
+
+        $orm = $this->_hotelORM->selectAll()->fetch('user');
+
+        if(is_array($params) && count($params) > 0)
+            $orm = $orm->where($params);
+
+        $hotelsPage = $orm->orderBy($order)
             ->queryPage($pageIndex, $pageSize);
 
         return $hotelsPage;
@@ -64,7 +68,7 @@ class HotelService {
         $id = intval($id);
 
         $hotel = $this->_hotelORM->selectAll()
-            ->fetch('rooms')
+            ->fetch(array('rooms'=>'otherPrice desc'))
             ->where()->field('id')->eq($id)
             ->queryOne();
 

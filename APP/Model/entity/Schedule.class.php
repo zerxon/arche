@@ -15,8 +15,8 @@ class Schedule extends ARModel {
         'id'=>'id',
         'orderId'=>'order_id',
         'roomId'=>'room_id',
+        'isOffline'=>'is_offline',
         'checkinDate'=>'checkin_date',
         'isCheckIn'=>'is_checkin'
     );
-
 }

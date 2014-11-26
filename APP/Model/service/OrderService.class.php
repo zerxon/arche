@@ -6,7 +6,8 @@
  */
 
 import('Model.entity.Order');
-import('Model.entity.Schedule');
+import('Model.service.ScheduleService');
+import('Library.Ext.CodeCreator');
 
 class OrderService {
     private $_orderORM;
@@ -48,6 +49,8 @@ class OrderService {
             if(!$hotel->isEmpty()) {
                 $orm = $this->_orderORM->selectAll()->fetch('room', 'user');
 
+                $params['hotelId'] = $hotel->id();
+
                 if(is_array($params) && count($params) > 0)
                     $orm = $orm->where($params);
 
@@ -57,6 +60,31 @@ class OrderService {
         }
 
         return $ordersPage;
+    }
+
+    public function getOne($orderId) {
+        $order = new Order();
+        $order->findOne($orderId);
+
+        if(!$order->isEmpty())
+            return $order->toArray();
+        else
+            return null;
+    }
+
+    public function getOneByCode($code) {
+        $code = trim($code);
+
+        if($code) {
+            $order = $this->_orderORM->selectAll()
+                        ->fetch('room', 'room.hotel', 'user')
+                        ->where()->field('code')->eq($code)
+                        ->queryOne();
+
+            return $order;
+        }
+
+        return null;
     }
 
     public function confirmOrder($date, $roomId, $userId, $comment) {
@@ -86,7 +114,7 @@ class OrderService {
             $order->hotelId($room->hotelId());
             $order->roomId($roomId);
             $order->userId($userId);
-            $order->code(microTimestamp());
+            //$order->code(microTimestamp());
             $order->comment($comment);
             $order->range($strDate);
             $order->addTime(time());
@@ -109,6 +137,132 @@ class OrderService {
         }
 
         return $status;
+    }
+
+    public function merchantConfirmOrder($orderId, $hotelId) {
+        $orderId = intval($orderId);
+        $hotelId = intval($hotelId);
+
+        if($orderId < 1 || $hotelId < 1)
+            return false;
+
+        $code = CodeCreator::produce();
+
+        $rows = $this->_orderORM->update()
+                    ->field('status')->eq(1)
+                    ->nextField('code')->eq($code)
+                    ->where()
+                    ->field('id')->eq($orderId)
+                    ->andField('hotelId')->eq($hotelId)
+                    ->execute();
+
+        $status = $rows > 0;
+
+        return $status;
+    }
+
+    public function cancelOrderByIdAndHotelId($orderId, $hotelId) {
+        $orderId = intval($orderId);
+        $hotelId = intval($hotelId);
+
+        if($orderId < 1 || $hotelId < 1)
+            return false;
+
+        $rows = $this->_orderORM->update()
+            ->field('status')->eq(2)
+            ->where(array('id'=>$orderId, 'hotelId'=>$hotelId))
+            ->queryAffectedRows();
+
+        $status = $rows > 0;
+
+        //删除对应的schedule
+        if($status) {
+            $scheduleService = ScheduleService::getInstance();
+            $status = $scheduleService->deleteSchedulesByOrderId($orderId);
+        }
+
+        return $status;
+    }
+
+    public function ignoreOrderByIdAndHotelId($orderId, $hotelId) {
+        $orderId = intval($orderId);
+        $hotelId = intval($hotelId);
+
+        if($orderId < 1 || $hotelId < 1)
+            return false;
+
+        $rows = $this->_orderORM->update()
+            ->Field('isMerchantIgnore')->eq(1)
+            ->where(array('id'=>$orderId, 'hotelId'=>$hotelId))
+            ->queryAffectedRows();
+
+        $status = $rows > 0;
+
+        return $status;
+    }
+
+    public function cancelOrderByIdAndUserId($orderId, $userId) {
+        $orderId = intval($orderId);
+        $userId = intval($userId);
+
+        if($orderId < 1 || $userId < 1)
+            return false;
+
+        $rows = $this->_orderORM->update()
+            ->field('status')->eq(2)
+            ->where(array('id'=>$orderId, 'userId'=>$userId))
+            ->queryAffectedRows();
+
+        $status = $rows > 0;
+
+        //删除对应的schedule
+        if($status) {
+            $scheduleService = ScheduleService::getInstance();
+            $status = $scheduleService->deleteSchedulesByOrderId($orderId);
+        }
+
+        return $status;
+    }
+
+    public function ignoreOrderByIdAndUserId($orderId, $userId) {
+        $orderId = intval($orderId);
+        $userId = intval($userId);
+
+        if($orderId < 1 || $userId < 1)
+            return false;
+
+        $rows = $this->_orderORM->update()
+            ->field('isUserIgnore')->eq(1)
+            ->where(array('id'=>$orderId, 'userId'=>$userId))
+            ->queryAffectedRows();
+
+        $status = $rows > 0;
+
+        //删除对应的schedule
+        if($status) {
+            $scheduleService = ScheduleService::getInstance();
+            $status = $scheduleService->deleteSchedulesByOrderId($orderId);
+        }
+
+        return $status;
+    }
+
+    public function codeConfirm($code, $hotelId) {
+        $code = trim($code);
+        $hotelId = intval($hotelId);
+
+        if(strlen($code) == 0 || $hotelId < 0)
+            return false;
+
+        $row = $this->_orderORM->update()
+                    ->field('status')->eq(3)
+                    ->where()
+                    ->field('code')->eq($code)
+                    ->andField('hotelId')->eq($hotelId)
+                    ->andField('status')->eq(1)
+                    ->queryAffectedRows();
+
+        return $row > 0;
     }
 
 }

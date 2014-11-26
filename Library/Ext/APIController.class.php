@@ -20,7 +20,7 @@ abstract class APIController extends Controller {
 
     protected $_ok = true;
 
-    protected $_success = true;
+    protected $_success = false;
     protected $_message;
     protected $_error;
     protected $_data;
@@ -30,7 +30,7 @@ abstract class APIController extends Controller {
         echo 'API not found';
     }
 
-    private function _show() {
+    protected function _show() {
         $apiArray = array(
             'success'=>$this->_success,
             'data'=>$this->_data

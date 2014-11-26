@@ -92,6 +92,19 @@ class ModelReflection {
 
         if(is_array($key) && count($key) > 0) {
             foreach($key as $index=>$mapperName) {
+                //判断是否为包含排序的映射的数组
+                if(is_array($mapperName)) {
+                    foreach($mapperName as $mapper => $order) {
+                        $mapperName = $mapper;
+
+                        if(isset($mappers[$mapperName]))
+                            $mappers[$mapperName]['Order'] = $order;
+
+                        break;
+                    }
+                }
+
+                //判断是否存在该映射
                 if(isset($mappers[$mapperName])) {
                     $mappers[$mapperName]['Fetch'] = FetchType::EAGER;
                     unset($key[$index]);
@@ -123,6 +136,7 @@ class ModelReflection {
             $alias = $this->getTableFieldAlias($tableField);
             if(isset($record[$alias])) {
                 $setter = 'set'.ucfirst($field);
+
                 $instance->$setter($record[$alias]);
             }
         }

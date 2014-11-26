@@ -7,10 +7,9 @@
 
 import('Model.service.HotelService');
 import('Model.service.RoomService');
-import('Model.service.OrderService');
 import('Library.Ext.TipsType');
 
-class HotelController extends Controller {
+class HotelAPIController extends APIController {
 
     private $_hotelService;
     private $_roomService;
@@ -25,6 +24,25 @@ class HotelController extends Controller {
             $this->_hotelService = HotelService::getInstance();
     }
 
+    public function all() {
+        $this->_initHotelService();
+
+        $pageIndex = intval($_GET['pageIndex']) > 0 ? intval($_GET['pageIndex']) : 1;
+        $pageSize = intval($_GET['pageSize']) > 0 ? intval($_GET['pageSize']) : 10;
+
+        $params = array(
+            'status'=>1
+        );
+
+        $order = array(
+            'id'=>ORDER_TYPE::DESC
+        );
+
+        $hotelsPage = $this->_hotelService->getHotelsByPage($pageIndex, $pageSize, $params, $order);
+        $this->_success = true;
+        $this->_data = $hotelsPage;
+    }
+
     public function detail() {
         $this->_initHotelService();
 
@@ -33,19 +51,14 @@ class HotelController extends Controller {
         if($hotelId > 0)
             $hotel = $this->_hotelService->getOneByIdWithRooms($hotelId);
 
-        if(!$hotel)
-            error('Invalid hotel id');
-
-//        foreach($hotel['rooms'] as $index => $room) {
-//            if($room['photos']) {
-//                $photosArray = explode('|', $room['photos']);
-//                $room['photosArray'] = $photosArray;
-//                $hotel['rooms'][$index] = $room;
-//            }
-//        }
-
-        $this->_assign('hotel', $hotel);
-        $this->_display('hotel/detail');
+        if($hotel) {
+            $this->_success = true;
+            $this->_data = $hotel;
+        }
+        else {
+            $this->_error = API_ERROR_TYPE::INVALID_PARAMS;
+            $this->_message = '参数无效';
+        }
     }
 
     public function order() {
@@ -53,29 +66,31 @@ class HotelController extends Controller {
 
         $id = intval($_REQUEST['room_id']);
 
-        if(!$id)
-            $error = '参数无效';
-
-        $roomService = RoomService::getInstance();
-        $room = $roomService->getOneByIdWithHotel($id);
-
-        if(!$room)
-            $error = '参数无效';
-
-        $schedules = $roomService->getAvailableSchedule($id, $room['amount']);
-
-        if($schedules == false)
-            $error = '无法获取时间表';
-
-        if($error) {
-            $_SESSION[TIPS_TYPE] = TipsType::ERROR;
-            $_SESSION[TIPS] = $error;
-            $this->_redirect(SITE_URL);
+        if(!$id) {
+            $this->_error = API_ERROR_TYPE::INVALID_PARAMS;
+            $this->_message = '参数无效';
         }
         else {
-            $this->_assign('room', $room);
-            $this->_assign('schedules', $schedules);
-            $this->_display('hotel/order');
+            $roomService = RoomService::getInstance();
+            $room = $roomService->getOneByIdWithHotel($id);
+
+            if(!$room) {
+                $this->_error = API_ERROR_TYPE::INVALID_PARAMS;
+                $this->_message = '参数无效';
+            }
+            else {
+                $schedules = $roomService->getAvailableSchedule($id, $room['amount']);
+
+                if($schedules) {
+                    $this->_success = true;
+                    $this->_data = $schedules;
+                }
+                else {
+                    $this->_error = API_ERROR_TYPE::INVALID_PARAMS;
+                    $this->_message = '获取时间表失败';
+                }
+            }
+
         }
 
     }

@@ -22,7 +22,6 @@ class Room extends ARModel {
         'otherPrice' => 'other_price',
         'photos' => 'photos',
         'amount' => 'amount',
-        'stock' => 'stock',
         'desc' => 'desc'
     );
 
@@ -36,4 +35,14 @@ class Room extends ARModel {
             )
         )
     );
+
+    protected $_transient = array(
+        'photosArray' => 'photosArray'
+    );
+
+    public function photosArray() {
+        $photosArray = explode('|', $this->photos());
+
+        return $photosArray;
+    }
 }

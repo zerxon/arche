@@ -42,9 +42,11 @@ class Hotel extends ARModel {
             'Type'=>'hasMany',
             'Fetch'=>FetchType::LAZY,
             'Target'=>'Room',
+            'Order'=>'id desc', //默认排序
             'Mapping'=>array(
                 'id'=>'hotelId'
             )
         )
     );
+
 }

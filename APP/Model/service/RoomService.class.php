@@ -7,7 +7,7 @@
 
 import('Model.entity.Room');
 import('Model.entity.Hotel');
-import('Model.service.Schedule');
+import('Model.entity.Schedule');
 
 class RoomService {
     private $_roomORM;
@@ -141,7 +141,7 @@ class RoomService {
             $room->otherPrice($otherPrice);
             $room->desc($desc);
             $room->amount($amount);
-            $room->stock($amount);
+            //$room->stock($amount);
 
             if($photos)
                 $room->photos($photos);
@@ -192,6 +192,7 @@ class RoomService {
                 else
                     $room->photos('');
 
+                /*
                 if($room->amount() != $amount) {
                     $count = $amount- $room->amount();
                     $stock = $room->stock() + $count;
@@ -204,8 +205,9 @@ class RoomService {
                     else
                         return -1;
                 }
+                */
 
-                $status = $room->save();
+                $room->save();
             }
             else {
                 $status = false;

@@ -8,6 +8,7 @@
 import('Model.service.HotelService');
 import('Model.service.RoomService');
 import('Model.service.OrderService');
+import('Model.service.ScheduleService');
 import('Library.Ext.TipsType');
 import('Library.Ext.ImageUpload');
 import('Library.Ext.Pagination');
@@ -16,6 +17,8 @@ class MerchantController extends Controller {
 
     private $_hotelService;
     private $_roomService;
+    private $_orderService;
+    private $_scheduleService;
 
     private function _initRoomService() {
         if($this->_roomService == null)
@@ -25,6 +28,16 @@ class MerchantController extends Controller {
     private function _initHotelService() {
         if($this->_hotelService == null)
             $this->_hotelService = HotelService::getInstance();
+    }
+
+    private function _initOrderService() {
+        if($this->_orderService == null)
+            $this->_orderService = OrderService::getInstance();
+    }
+
+    private function _initScheduleService() {
+        if($this->_scheduleService == null)
+            $this->_scheduleService = ScheduleService::getInstance();
     }
 
     public function hotelEdit() {
@@ -193,11 +206,14 @@ class MerchantController extends Controller {
 
         $status =  $this->_roomService->doEdit($roomId ,$name, $price, $otherPrice, $amount, $desc, $userId, $photos);
 
+        /*
         if($status === -1) {
             $_SESSION[TIPS_TYPE] = TipsType::ERROR;
             $_SESSION[TIPS] = '由于房间总量的修改，导致改房间剩余量小于1，因此修改失败';
         }
-        else if(!$status) {
+        */
+
+        if(!$status) {
             $_SESSION[TIPS_TYPE] = TipsType::ERROR;
             $_SESSION[TIPS] = '修改失败';
         }
@@ -378,7 +394,6 @@ class MerchantController extends Controller {
             $room->otherPrice($otherPrice);
             $room->desc(base64_encode($desc));
             $room->amount($amount);
-            $room->stock($amount);
 
             if(is_array($photosArray) && count($photosArray) > 0) {
                 $room->photos(implode('|', $photosArray));
@@ -457,10 +472,102 @@ class MerchantController extends Controller {
         $this->_display('merchant/step_3');
     }
 
+    public function roomBookCountOperator() {
+        $type = $_POST['type'];
+        $date = intval($_POST['date']);
+        $roomId = intval($_POST['roomId']);
+
+        $status = true;
+        $stock = 0;
+        $msg = "更新失败";
+        if($type != 'sub' && $type !='plus')
+            $status = false;
+
+        if($date < 1 || $roomId < 1)
+            $status = false;
+
+        if($status) {
+            $this->_initRoomService();
+            $room = $this->_roomService->getOneByIdWithHotel($roomId);
+
+            if($room['hotel']['userId'] !== $_SESSION[SESSION_USER]['id']) {
+                $status = false;
+                $msg = '您无权限执行该操作';
+            }
+            else {
+                $this->_initScheduleService();
+                $count = $this->_scheduleService->getOneBookSchedule($roomId, $date);
+
+                if($count['offline'] == 0 && $type == 'sub') {
+                    $status = false;
+                    $msg = '数量为0，不能再减了';
+                }
+                else if($count['online'] + $count['offline'] == $room['amount'] && $type == 'plus') {
+                    $status = false;
+                    $msg = '预订(入住)量已达上限，不能执行该操作';
+                }
+
+                if($status) {
+                    if($type == 'sub')
+                        $status = $this->_scheduleService->subOneOffline($roomId, $date);
+                    else
+                        $status = $this->_scheduleService->addOneOffline($roomId, $date);
+
+                    if($status) {
+                        $count['offline'] = $type == 'sub' ? $count['offline'] - 1 : $count['offline'] + 1;
+                        $stock = $room['amount'] - $count['online'] - $count['offline'];
+                        $msg = "更新成功";
+                    }
+                }
+            }
+        }
+        else {
+            $msg = '参数错误';
+        }
+
+        $data = array(
+            'status'=>$status,
+            'offlineBook' => $count['offline'],
+            'stock' =>  $stock,
+            'message' => $msg
+        );
+
+        $this->_output($data, 'json');
+    }
+
+    public function hotelCenter() {
+        $this->_initHotelService();
+        $this->_initRoomService();
+        $this->_initScheduleService();
+
+        $userId = $_SESSION[SESSION_USER]['id'];
+        $hotel = $this->_hotelService->getOneByUserId($userId);
+
+        foreach($hotel['rooms'] as $index => $room) {
+            $stockSchedules = $this->_roomService->getAvailableSchedule($room['id'], $room['amount']);
+            $offlineBookSchedules = $this->_scheduleService->getOfflineBookSchedule($room['id']);
+
+            $schedules = array();
+            foreach($stockSchedules as $date => $stock) {
+                $schedules[$date] = array(
+                    'stock' => $stock,
+                    'offlineBook' => $offlineBookSchedules[$date]
+                );
+            }
+
+            $hotel['rooms'][$index]['schedules'] = $schedules;
+        }
+
+        $this->_assign('hotel', $hotel);
+        $this->_display('merchant/hotel_center');
+    }
+
     public function hotelOrder() {
         $merchantId = intval($_SESSION[SESSION_USER]['id']);
 
-        $params = null;
+        $params = array(
+            'isMerchantIgnore'=>0,
+        );
 
         $order = array(
             'id' => 'desc'
@@ -472,6 +579,18 @@ class MerchantController extends Controller {
         $orderService = OrderService::getInstance();
         $page = $orderService->getHotelOrdersByPage($merchantId, $pageIndex, $pageSize, $params, $order);
 
+        if($page['records']) {
+            foreach($page['records'] as $index => $record) {
+                $strDate = substr($record['range'], 0, strpos($record['range'], '('));
+                $date = strtotime($strDate);
+                $date += 86400;
+                if($date < time())
+                    $page['records'][$index]['isExpiry'] =  true;
+                else
+                    $page['records'][$index]['isExpiry'] = false;
+            }
+        }
+
         $pagination = new Pagination($page);
         $pagination->showSize = 5;
         $pagination->url = SITE_URL.'account/merchant/hotelOrder?page=';
@@ -480,5 +599,149 @@ class MerchantController extends Controller {
         $this->_assign('page', $page);
         $this->_assign('paging', $paging);
         $this->_display('merchant/hotel_order');
+    }
+
+    public function confirmOrder() {
+        $orderId = intval($_GET['order_id']);
+        $userId = intval($_SESSION[SESSION_USER]['id']);
+
+        $status = true;
+        if($orderId < 1)
+            $status = false;
+
+        if($status) {
+            $this->_initHotelService();
+            $this->_initOrderService();
+
+            $hotel = $this->_hotelService->getOneByUserId($userId);
+
+            if($hotel) {
+                $status = $this->_orderService->merchantConfirmOrder($orderId, $hotel['id']);
+            }
+            else {
+                $status = false;
+            }
+        }
+
+        if($status) {
+            $_SESSION[TIPS_TYPE] = TipsType::SUCCESS;
+            $_SESSION[TIPS] = '确认订单成功';
+        }
+        else {
+            $_SESSION[TIPS_TYPE] = TipsType::ERROR;
+            $_SESSION[TIPS] = '确认订单失败';
+        }
+
+        $this->_redirect(SITE_URL.'account/merchant/hotelOrder');
+    }
+
+    public function cancelOrder() {
+        $orderId = intval($_GET['order_id']);
+        $userId = intval($_SESSION[SESSION_USER]['id']);
+
+        $status = true;
+        if($orderId < 1)
+            $status = false;
+
+        if($status) {
+            $this->_initHotelService();
+            $this->_initOrderService();
+
+            $hotel = $this->_hotelService->getOneByUserId($userId);
+
+            if($hotel) {
+                $status = $this->_orderService->cancelOrderByIdAndHotelId($orderId, $hotel['id']);
+            }
+            else {
+                $status = false;
+            }
+        }
+
+        if($status) {
+            $_SESSION[TIPS_TYPE] = TipsType::SUCCESS;
+            $_SESSION[TIPS] = '取消订单成功';
+        }
+        else {
+            $_SESSION[TIPS_TYPE] = TipsType::ERROR;
+            $_SESSION[TIPS] = '取消订单失败';
+        }
+
+        $this->_redirect(SITE_URL.'account/merchant/hotelOrder');
+    }
+
+    public function ignoreOrder() {
+        $orderId = intval($_GET['order_id']);
+        $userId = intval($_SESSION[SESSION_USER]['id']);
+
+        $status = true;
+        if($orderId < 1)
+            $status = false;
+
+        if($status) {
+            $this->_initHotelService();
+            $this->_initOrderService();
+
+            $hotel = $this->_hotelService->getOneByUserId($userId);
+
+            if($hotel) {
+                $status = $this->_orderService->ignoreOrderByIdAndHotelId($orderId, $hotel['id']);
+            }
+            else {
+                $status = false;
+            }
+        }
+
+        if($status) {
+            $_SESSION[TIPS_TYPE] = TipsType::SUCCESS;
+            $_SESSION[TIPS] = '删除订单成功';
+        }
+        else {
+            $_SESSION[TIPS_TYPE] = TipsType::ERROR;
+            $_SESSION[TIPS] = '删除订单成功';
+        }
+
+        $this->_redirect(SITE_URL.'account/merchant/hotelOrder');
+    }
+
+    public function codeConfirm() {
+        $code = trim($_POST['code']);
+        $userId = intval($_SESSION[SESSION_USER]['id']);
+
+        $status = true;
+        if(strlen($code) == 0)
+            $status = false;
+
+        if($status) {
+            $this->_initHotelService();
+            $this->_initOrderService();
+
+            $hotel = $this->_hotelService->getOneByUserId($userId);
+
+            if($hotel) {
+                $status = $this->_orderService->codeConfirm($code, $hotel['id']);
+            }
+            else {
+                $status = false;
+            }
+        }
+
+        if($status) {
+            $_SESSION[TIPS_TYPE] = TipsType::SUCCESS;
+            $_SESSION[TIPS] = '验证码正确！';
+
+            $order = $this->_orderService->getOneByCode($code);
+
+            if($order) {
+                $this->_assign('order' ,$order);
+                $this->_display('merchant/code_result');
+            }
+        }
+
+        if(!$status) {
+            $_SESSION[TIPS_TYPE] = TipsType::ERROR;
+            $_SESSION[TIPS] = '验证码有误！';
+            $this->_redirect(SITE_URL.'account/merchant/hotelCenter');
+        }
+
     }
 }

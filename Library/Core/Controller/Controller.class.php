@@ -36,12 +36,12 @@ abstract class Controller implements IController {
         $type = strtolower($type);
 
         switch($type) {
-            case 'json':
+            case OUTPUT_TYPE::JSON:
                 $json = json_encode($data);
                 echo $json;
                 break;
 
-            case 'xml':
+            case OUTPUT_TYPE::XML:
                 // do something
                 break;
 
@@ -74,4 +74,9 @@ abstract class Controller implements IController {
     }
 
     //public abstract function index();
+}
+
+class OUTPUT_TYPE {
+    const JSON = 'json';
+    const XML = 'xml';
 }

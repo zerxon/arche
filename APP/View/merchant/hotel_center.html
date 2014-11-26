@@ -1,0 +1,121 @@
+{importTemplate('public/header')}
+
+<link rel="stylesheet" type="text/css" href="{PUBLIC_URL}css/account.css">
+
+<div class="container">
+    <div class="row-fluid">
+        {importTemplate('account/sidebar')}
+        <div class="span9">
+            <div class="box content">
+                <div class="page-header">旅馆中心</div>
+
+                <div class="room-status-container">
+                    <div class="header">
+                        <div class="title">订单密码</div>
+                        <div class="tips">
+                            温馨提示：请输入客户提供的订单密码，以确认入住信息
+                        </div>
+                        <div class="code-area">
+                            <form class="form-horizontal" name="changeProfile" method="POST" action="{SITE_URL}account/merchant/codeConfirm" novalidate="novalidate">
+                                <div class="control-group">
+                                    <label class="control-label" for="code">订单密码</label>
+                                    <div class="controls">
+                                        <input type="text" class="span8" name="code" id="code" value="">
+                                        &nbsp;
+                                        <input type="submit" class="btn btn-success" value="确定">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="header">
+                        <div class="title">房间状态</div>
+                        <div class="tips">
+                            温馨提示：此栏为房间预订(入住)情况的统计信息，考虑在实际情况中，
+                            若客户不是通过网上预订房间的，则需调整房间线下预订(入住)量，让系统正确产生正确的房间空闲总量，
+                            如需减少房间线下预订(入住)量请按 <span class="btn-small btn-danger">-</span>，
+                            增加线下预订(入住)量请按 <span class="btn-small btn-success">+</span>
+                        </div>
+                    </div>
+
+                    {loop $hotel['rooms'] $room}
+                    <ul class="room-status">
+                        <li class="title">$room['name']<span>（房间总量: {$room['amount']}）</span></li>
+                        <li>
+                            <table class="table">
+                                <tr>
+                                    <th>日期</th>
+                                    <th>空闲总量</th>
+                                    <th>线上预订(入住)量</th>
+                                    <th>线下预订(入住)量</th>
+                                </tr>
+                                {loop $room['schedules'] $date $schedule}
+                                <tr style="color: {if $schedule['stock'] > 0}green{else}red{/if};">
+                                    <td>{php echo getFriendlyTime($date, 'Y-m-d')} (星期{php echo week(date('w', $date))})</td>
+                                    <td class="stock">{$schedule['stock']}</td>
+                                    <td>{php echo $room['amount']-$schedule['stock']-$schedule['offlineBook']}</td>
+                                    <td>
+                                        <a class="btn-small btn-danger sub" date="{$date}" roomId="{$room['id']}">-</a>
+                                        &nbsp;<span class="offlineBook">{$schedule['offlineBook']}</span>&nbsp;
+                                        <a class="btn-small btn-success plus" date="{$date}" roomId="{$room['id']}">+</a>
+                                    </td>
+                                </tr>
+                                {/loop}
+                            </table>
+                        </li>
+
+                    </ul>
+                    {/loop}
+
+                </div>
+            </div>
+        </div><!--/span-->
+    </div><!--/row-->
+
+</div><!--/.fluid-container-->
+
+<script type="text/javascript">
+    $(function() {
+
+        $('.sub').click(function() {
+            operator($(this), 'sub');
+        });
+
+        $('.plus').click(function() {
+            operator($(this), 'plus');
+        });
+
+        function operator(obj, type) {
+            $.ajax({
+                url: '{SITE_URL}account/merchant/roomBookCountOperator',
+                type: 'POST',
+                data: {
+                    type: type,
+                    date: obj.attr('date'),
+                    roomId: obj.attr('roomId')
+                },
+                dataType: 'JSON',
+                success: function(data) {
+                    if(data.status == true) {
+                        //var stock = parseInt(obj.parent().parent().find('.stock').text());
+                        //stock = type == 'sub' ? stock + 1 : stock - 1;
+                        var stock = parseInt(data.stock);
+                        if(stock > 0)
+                            obj.parent().parent().css('color', 'green');
+                        else
+                            obj.parent().parent().css('color', 'red');
+
+                        obj.parent().parent().find('.stock').text(stock);
+                        obj.parent().find('.offlineBook').text(data.offlineBook);
+                    }
+                    else {
+                        alert(data.message);
+                    }
+                }
+            });
+        }
+    });
+</script>
+
+{importTemplate('public/footer')}

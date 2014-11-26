@@ -20,7 +20,12 @@ class UserPermissionFilter extends Filter {
         else {
             $_SESSION[TIPS] = '您无权限访问，请先登录';
             $_SESSION[TIPS_TYPE] = TipsType::ERROR;
-            $this->_redirect(SITE_URL);
+
+            if(strpos($_SERVER['HTTP_REFERER'], SITE_URL) > -1)
+                $this->_redirect($_SERVER['HTTP_REFERER']);
+            else
+                $this->_redirect(SITE_URL);
+
             return false;
         }
     }
