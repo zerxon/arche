@@ -41,7 +41,10 @@ class Room extends ARModel {
     );
 
     public function photosArray() {
-        $photosArray = explode('|', $this->photos());
+        $photosArray = array();
+
+        if($this->photos())
+            $photosArray = explode('|', $this->photos());
 
         return $photosArray;
     }

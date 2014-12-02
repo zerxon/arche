@@ -135,19 +135,16 @@ class AccountController extends Controller {
     public function checkExist() {
         $tel = trim($_POST['tel']);
 
-        $notExist = false;
+        $notExist = 'false';
 
         if($tel && preg_match('/\d{11}/', $tel)) {
             $user = $this->_userService->getOneByTel($tel);
 
             if(!$user)
-                $notExist = true;
+                $notExist = 'true';
         }
 
-        if($notExist) {
-            $json = array('notExist' => true);
-            $this->_output($json, 'json');
-        }
+        $this->_output($notExist);
     }
 
     public function myOrder() {

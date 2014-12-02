@@ -6,7 +6,7 @@
 
 {if !$_SESSION['session_user']}
 <!-- 登录 -->
-<form class="bs-docs-example form-horizontal" name="signin" action="{SITE_URL}account/doSignIn" method="POST">
+<form class="bs-docs-example form-horizontal" name="signin" id="signin" action="{SITE_URL}account/doSignIn" method="POST">
     <div id="sign-in" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
@@ -44,7 +44,7 @@
 </form>
 
 <!-- 注册 -->
-<form class="bs-docs-example form-horizontal" name="signup" action="{SITE_URL}account/doSignUp" method="POST">
+<form class="bs-docs-example form-horizontal" name="signup" id="signup" action="{SITE_URL}account/doSignUp" method="POST">
     <div id="sign-up" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>

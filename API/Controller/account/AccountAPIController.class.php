@@ -68,7 +68,7 @@ class AccountAPIController extends APIController {
         $this->_success = true;
     }
 
-    public function changeProfile() {
+    public function profile() {
         $userId = intval($_SESSION[SESSION_USER]['id']);
         $user = $this->_userService->getOneById($userId);
 

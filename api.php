@@ -14,6 +14,7 @@ define('APP_PATH', 'API/');
 define('MODEL_PATH', 'APP/Model/');
 
 define('SITE_URL', 'http://172.18.169.9/arche/web.php/');
+// define('SITE_URL', 'http://127.0.0.1/arche/web.php/');
 define('SESSION_USER', 'session_user');
 
 require_once 'Library/Core/runtime.php';

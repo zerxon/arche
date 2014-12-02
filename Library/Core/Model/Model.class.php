@@ -59,12 +59,16 @@ abstract class Model {
         elseif(isset($this->_fieldValues[$property])) {
             return $this->_fieldValues[$property];
         }
+        else {
+            //error($property.' undefined property');
+            return null;
+        }
+
+        /*
         elseif(array_key_exists($property, $this->_mappers)) {
             return null;
         }
-        else {
-            error($property.' undefined property');
-        }
+        */
     }
 
     /**
@@ -84,7 +88,8 @@ abstract class Model {
             $this->_fieldValues[$property] = $value;
         }
         else {
-            error($property.' undefined property');
+            //error($property.' undefined property');
+            return null;
         }
     }
 

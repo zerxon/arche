@@ -13,13 +13,13 @@
                     {loop $room['photosArray'] $index $photo}
                     {if $index==0}
                     <div class="big-pic">
-                        <a href="{BASE_URL}$photo" rel="[gall{$room['id']}]" title="{$room['name']}">
+                        <a href="{BASE_URL}$photo" data-lightbox="gallery{$room['id']}" data-title="{$room['name']}">
                             <img src="{BASE_URL}$photo">
                         </a>
                         <div class="more">点击可查看更多大图</div>
                     </div>
                     {else}
-                    <a style="display: none;" href="{BASE_URL}$photo" rel="[gall{$room['id']}]" title="{$room['name']}">
+                    <a style="display: none;" href="{BASE_URL}$photo" data-lightbox="gallery{$room['id']}" data-title="{$room['name']}">
                     </a>
                     {/if}
                     {/loop}
@@ -75,11 +75,7 @@
 
 </div><!--/.fluid-container-->
 
-<link rel="stylesheet" type="text/css" href="{PUBLIC_URL}foxibox-0.2/style/jquery-foxibox-0.2.css">
-<script src="{PUBLIC_URL}foxibox-0.2/script/jquery-foxibox-0.2.min.js"></script>
-<script type="text/javascript">
-    $(document).ready(function(){
-        $('a[rel]').foxibox();
-    });
-</script>
+<link rel="stylesheet" type="text/css" href="{PUBLIC_URL}lightbox/css/lightbox.css">
+<script src="{PUBLIC_URL}lightbox/js/lightbox.min.js"></script>
+
 {importTemplate('public\footer')}
