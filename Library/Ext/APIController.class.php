@@ -25,6 +25,10 @@ abstract class APIController extends Controller {
     protected $_error;
     protected $_data;
 
+    public function __construct()
+    {
+    }
+
     public function index() {
         $this->_ok = false;
         echo 'API not found';
@@ -38,8 +42,11 @@ abstract class APIController extends Controller {
 
         if(!$this->_success) {
             unset($apiArray['data']);
-            $apiArray['message'] = $this->_message;
             $apiArray['error'] = $this->_error;
+        }
+
+        if ($this->_message) {
+            $apiArray['message'] = $this->_message;
         }
 
         $formatType = C('api_format');

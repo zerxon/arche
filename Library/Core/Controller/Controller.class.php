@@ -37,6 +37,7 @@ abstract class Controller implements IController {
 
         switch($type) {
             case OUTPUT_TYPE::JSON:
+                header('Content-Type:application/json');
                 $json = json_encode($data);
                 echo $json;
                 break;

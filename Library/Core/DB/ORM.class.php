@@ -15,6 +15,9 @@ class ORM {
     private $_reflection;
     private $_tableName;
     private $_operatorType;
+    private $_limit;
+
+    private $groupBy;
 
     private $_fetchs = array();
 
@@ -73,14 +76,25 @@ class ORM {
 
     private function _processSQLString() {
 
+        //group by
+        if ($this->groupBy) {
+            $this->_sql .= " GROUP BY `".$this->groupBy."` ";
+        }
+
         //order by
         if(count($this->_orders) > 0) {
             $orderBy = ' ORDER BY ';
             $orderByArray = array();
             foreach($this->_orders as $field=>$sort) {
-                $tableFieldWithTableName = $this->_reflection->getTableFieldWithTableName($field);
-
-                $str = "$tableFieldWithTableName $sort";
+                
+                if (is_string($field)) {
+                    $tableFieldWithTableName = $this->_reflection->getTableFieldWithTableName($field);
+                    $str = "$tableFieldWithTableName $sort";
+                }
+                else {
+                    $str = $sort;
+                }
+                              
                 array_push($orderByArray, $str);
             }
 
@@ -93,6 +107,9 @@ class ORM {
             $offset = ($this->_page['pageIndex'] - 1) * $this->_page['pageSize'];
 
             $this->_sql .= " LIMIT $offset,".$this->_page['pageSize'];
+        }
+        else if ($this->_limit) {
+            $this->_sql .= $this->_limit;
         }
     }
 
@@ -134,10 +151,17 @@ class ORM {
 
             //排序
             if(!empty($mapper['Order'])) {
-                $order = explode(' ', $mapper['Order']);
-                $orderField = trim($order[0]);
-                $orderType = trim($order[1]);
-                $mappingCondition .= "ORDER BY ".$targetReflection->getTableFieldWithTableName($orderField)." $orderType";
+                if (!is_array($mapper['Order'])) {
+                    $order = explode(' ', $mapper['Order']);
+                    $orderField = trim($order[0]);
+                    $orderType = trim($order[1]);
+                    $mappingCondition .= "ORDER BY ".$targetReflection->getTableFieldWithTableName($orderField)." $orderType";
+                }
+                else {
+                    $mappingCondition .= "ORDER BY ".$mapper['Order'][0];
+                }
+
+                
             }
 
             //查询字段
@@ -294,10 +318,19 @@ class ORM {
                         error("where condition type only allow AND/OR");
                 }
 
-                $this->eq($value);
+                if (is_array($value)) {
+                    $op = $value[0];
+                    $this->$op($value[1]);
+                }
+                else {
+                    $this->eq($value);
+                }
 
                 $index++;
             }
+        }
+        else {
+            $this->_sql .= " $params ";
         }
 
         return $this;
@@ -314,6 +347,16 @@ class ORM {
         $tableFieldWithTableName = $this->_reflection->getTableFieldWithTableName($field);
         $this->_sql .= ",$tableFieldWithTableName";
 
+        return $this;
+    }
+
+    public function andString($str) {
+        $this->_sql .= " AND $str ";
+        return $this;
+    }
+
+    public function orString($str) {
+        $this->_sql .= " OR $str ";
         return $this;
     }
 
@@ -380,6 +423,12 @@ class ORM {
         return $this;
     }
 
+    public function groupBy($groupBy) {
+        $this->groupBy = $groupBy;
+
+        return $this;
+    }
+
     public function orderBy($orders) {
         $this->_orders = $orders;
 
@@ -390,13 +439,13 @@ class ORM {
         $start = intval($start);
         $end == null ? null : intval($end);
 
-        if($start > 0 && ($end == null || $end > 0)) {
+        if($start >= 0 && ($end == null || $end > 0)) {
             if($end != null)
-                $limit = "LIMIT $start, $end";
+                $limit = " LIMIT $start, $end";
             else
-                $limit = "LIMIT $start";
+                $limit = " LIMIT $start";
 
-            $this->_sql .= $limit;
+            $this->_limit .= $limit;
         }
 
         return $this;
@@ -448,6 +497,12 @@ class ORM {
         else {
             return null;
         }
+    }
+
+    public function querySql($sql) {
+        $records = $this->_driver->fetch_all_assoc($sql);
+
+        return $records;
     }
 
     public function queryAll($isObj = false, $isOrigin = false) {

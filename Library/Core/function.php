@@ -41,7 +41,29 @@ function C($name = null,$val = null) {
     }
 }
 
-function import($class,$ext = '.class.php') {
+function S($key, $value = null, $expire = 0) {
+    import('Library.Core.Cache.CacheFactory');
+    $cacheInstance = CacheFactory::create(CacheType::REDIS);
+
+    if (is_array($key)) {
+        $cacheKey = md5(json_encode($key));
+    }
+    else {
+        $cacheKey = md5($key);
+    }
+
+    if ($value == null) {
+        if ($cache = $cacheInstance->get($cacheKey)) {
+            $data = unserialize($cache);
+            return $data;
+        }
+    }
+    else {
+        return $cacheInstance->set($cacheKey, serialize($value), $expire);
+    }
+}
+
+function import($class, $ext = '.class.php') {
     $pos = strpos($class,'.');
     $whosePackage = substr($class,0,$pos);
     $name = str_replace('.','/',$class);
@@ -196,6 +218,24 @@ function hostUrl() {
 function selfUrl() {
     $selfUrl = hostUrl().$_SERVER['REQUEST_URI'];
     return $selfUrl;
+}
+
+function getIP() {
+    $unknown = 'unknown';
+    if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])
+        && $_SERVER['HTTP_X_FORWARDED_FOR']
+        && strcasecmp($_SERVER['HTTP_X_FORWARDED_FOR'],
+            $unknown)
+    ) {
+        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    } elseif (isset($_SERVER['REMOTE_ADDR'])
+        && $_SERVER['REMOTE_ADDR'] &&
+        strcasecmp($_SERVER['REMOTE_ADDR'], $unknown)
+    ) {
+        $ip = $_SERVER['REMOTE_ADDR'];
+    }
+
+    return $ip;
 }
 
 function getFriendlyTime($time = null, $format = 'Y-m-d H:i:s') {

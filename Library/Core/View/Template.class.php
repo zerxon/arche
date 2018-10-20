@@ -26,12 +26,18 @@ class Template {
         $viewConfig = C('view');
         $path = VIEW_PATH.$tplPath.$viewConfig['suffix'];
 
-        ob_start();
-        include_once $path;
-        $template = ob_get_contents();
-        ob_end_clean();
+        if (!file_exists($path)) {
+        	return "{template file '$path' does not exist.}";
+        }
+        else {
+        	ob_start();
+	        include_once $path;
+	        $template = ob_get_contents();
+	        ob_end_clean();
 
-        return $template;
+	        return $template;
+        }
+        
     }
 
 	private function _parse($template) {

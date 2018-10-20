@@ -1,36 +1,41 @@
 <?php
- 
+
+import('Library.Core.DB.DBHandler');
+
 class MysqlDriver {
 
 	var $queryCount = 0;
 	var $conn;
 	var $result;
     var $dbConfig;
+    var $dbHandler;
 
     private static $_instance;
+    private static $_connects;
 
 	public function __construct($dbConfig){
 
-		if (!function_exists('mysqli_connect')){
-			error('The setting of PHP on server does not support mysqli');
-		}
-
-        if(empty($dbConfig['host'])) {
-            error("db config 'host' not set");
-        }
-        else if(empty($dbConfig['user'])) {
-            error("db config 'user' not set");
-        }
-        else if(empty($dbConfig['pwd'])) {
-            error("db config 'password' not set");
-        }
-        else if(empty($dbConfig['name'])) {
-            error("db config 'name' not set");
+		if (!function_exists('mysqli_connect')) {
+            error('The setting of PHP on server does not support mysqli');
         }
 
-        $this->dbConfig = $dbConfig;
-        $this->initConn();
+        if(empty($dbConfig['DB_HOST'])) {
+            error("db config 'DB_HOST' not set");
+        }
+        else if(empty($dbConfig['DB_USER'])) {
+            error("db config 'DB_USER' not set");
+        }
+        else if(empty($dbConfig['DB_PWD'])) {
+            error("db config 'DB_PWD' not set");
+        }
+        else if(empty($dbConfig['DB_NAME'])) {
+            error("db config 'DB_NAME' not set");
+        }
 
+		$this->dbConfig = $dbConfig;
+        $this->dbHandler = new DBHandler();
+
+        //$this->connect();
     }
 
     public static function getInstance($dbConfig) {
@@ -40,16 +45,25 @@ class MysqlDriver {
         return MysqlDriver::$_instance;
     }
 
-    private function initConn() {
+    private function connect($sql = '') {
         $dbConfig = $this->dbConfig;
-        if(!$this->conn->client_info) {
-            $this->conn = mysqli_connect($dbConfig['host'], $dbConfig['user'], $dbConfig['pwd'],$dbConfig['name'])
-            or die('Mysql database connect failed');
+		$this->dbHandler->onConnect($dbConfig, $sql);
+
+        $key = md5(json_encode($dbConfig));
+        if (array_key_exists($key, MysqlDriver::$_connects)) {
+            $this->conn = MysqlDriver::$_connects[$key];
+        }
+        else {
+            $this->conn = mysqli_connect($dbConfig['DB_HOST'], $dbConfig['DB_USER'], $dbConfig['DB_PWD'],$dbConfig['DB_NAME'])
+            or die(mysqli_connect_error());
+
+            if ($this->getmysqlVersion() >'4.1'){
+                mysqli_query($this->conn,"SET NAMES 'utf8'");
+            }
+
+            MysqlDriver::$_connects[$key] = $this->conn;
         }
 
-        if ($this->getmysqlVersion() >'4.1'){
-            mysqli_query($this->conn,"SET NAMES 'utf8'");
-        }
     }
 
 	/*
@@ -65,7 +79,8 @@ class MysqlDriver {
 	 */
 	 
 	function query($sql){
-        $this->initConn();
+        $this->dbHandler->onExecute($sql);
+		$this->connect($sql);
 
 		$this->result = mysqli_query($this->conn, $sql);
 		$this->queryCount++;

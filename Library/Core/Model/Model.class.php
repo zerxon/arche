@@ -127,7 +127,7 @@ abstract class Model {
 
     public function getTableName() {
         $dbConfig = C('db');
-        return  $dbConfig['prefix'].$this->_tableName;
+        return  $dbConfig['TB_PREFIX'].$this->_tableName;
     }
 
     /**
@@ -166,6 +166,23 @@ abstract class Model {
         }
 
         return $array;
+    }
+
+    /**
+    * 转化原始数据
+    * @return array
+    */
+    public function parse($array) {
+        $arr = array();
+        if (count($array) > 0) {
+            foreach ($this->_fields as $key => $value) {
+                if (isset($array[$value])) {
+                    $arr[$key] = $array[$value];
+                }
+            }
+        }
+
+        return $arr;
     }
 
     /**

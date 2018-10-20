@@ -32,6 +32,10 @@ defined('SITE_URL') or define('SITE_URL', BASE_URL);
 //设置默认时区
 date_default_timezone_set(C('time_zone'));
 
+$pathInfo = str_replace('?'.$_SERVER['QUERY_STRING'], '', $_SERVER['REQUEST_URI']);
+$_SERVER['PATH_INFO'] = $pathInfo;
+
 //路由解析
 $router = Router::getInstance();
-$router->dispatch();
+
+$router->dispatch($pathInfo);

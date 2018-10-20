@@ -53,6 +53,8 @@ abstract class ARModel extends Model {
         else
             $result = $this->_driver->updateArr($record, $this->getTableName(), $where);
 
+        $this->_fieldValues[$this->_primaryKey] = $result;
+
         return $result;
     }
 

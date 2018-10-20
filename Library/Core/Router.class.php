@@ -187,6 +187,7 @@ class Router
             //过滤器
             if (C('filter_enable')) {
                 import('Library.Core.Filter.FilterHandler');
+
                 $filterHandler = FilterHandler::getInstance();
                 $status = $filterHandler->filter($module, $action);
             }
@@ -206,8 +207,10 @@ class Router
                     }
                 }
 
+
                 //若存在，则调用该action
                 if ($methodExists) {
+
                     $controllerInstance = new $controllerClass();
 
                     $controllerInstance->setModule($module);
@@ -239,11 +242,10 @@ class Router
     /**
      * 路由分发器
      */
-    public function dispatch() {
+    public function dispatch($pathInfo) {
         $baseControllerClass = $this->_loadBaseController();
         import($baseControllerClass);
 
-        $pathInfo = $_SERVER['PATH_INFO'];
         $this->_ruleMatch($pathInfo);
 
         $controllerClassPrefix = end(explode('/', $this->_module));

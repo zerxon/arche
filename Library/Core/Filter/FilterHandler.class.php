@@ -73,6 +73,7 @@ class FilterHandler {
                             $context = new FilterContext($module, $action, $_SERVER['REQUEST_URI']);
 
                             $filterInstance = new $filter();
+
                             $status =  $filterInstance->doFilter($context);
 
                             if($status) {
